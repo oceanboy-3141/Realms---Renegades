@@ -1,0 +1,2657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy RPG Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Merriweather', serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #2c3e50, #34495e); /* Dark fantasy background */
+            color: #ecf0f1; /* Light text color */
+            margin: 0;
+            overflow: auto; /* Allow scrolling if content overflows */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Game title */
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: #f1c40f; /* Gold color */
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            text-align: center;
+        }
+
+        /* Main game container */
+        .game-container {
+            background-color: rgba(44, 62, 80, 0.9); /* Slightly transparent dark background */
+            border: 3px solid #f1c40f; /* Gold border */
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Sections for player, enemy, and messages */
+        .player-info, .enemy-info, .game-messages, .actions, .skills-view, .combat-arena, .game-map, .blacksmith-items, .story-intro, .settings-screen {
+            background-color: rgba(52, 73, 94, 0.8); /* Slightly lighter background for sections */
+            border: 1px solid #c0392b; /* Reddish border for contrast */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        /* Info headers */
+        h2 {
+            font-family: 'Cinzel', serif;
+            color: #e74c3c; /* Red color for headers */
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        /* Paragraphs within info sections */
+        .player-info p, .enemy-info p, .item-card p, .skill-card p, .story-intro p, .settings-screen p {
+            margin: 8px 0;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+
+        /* Game messages area */
+        .game-messages {
+            min-height: 100px;
+            overflow-y: auto;
+            max-height: 150px;
+            font-size: 1.1em;
+            line-height: 1.5;
+            color: #bdc3c7; /* Lighter grey for messages */
+            text-align: center;
+        }
+
+        /* Action and Upgrade buttons container */
+        .actions, .skills-container, .map-controls, .blacksmith-items, .class-selection, .special-skills-container, .settings-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Button styling */
+        button {
+            font-family: 'Cinzel', serif;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            background-image: linear-gradient(to bottom right, #c0392b, #e74c3c); /* Red gradient */
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.6);
+            background-image: linear-gradient(to bottom right, #e74c3c, #c0392b); /* Inverted gradient */
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Disabled button styling */
+        button:disabled {
+            background-image: linear-gradient(to bottom right, #7f8c8d, #95a5a6); /* Greyed out */
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.7; /* Slightly faded */
+        }
+
+        /* Specific button colors */
+        #attackButton { background-image: linear-gradient(to bottom right, #27ae60, #2ecc71); } /* Green for attack */
+        #attackButton:hover { background-image: linear-gradient(to bottom right, #2ecc71, #27ae60); }
+
+        #magicButton { background-image: linear-gradient(to bottom right, #2980b9, #3498db); } /* Blue for magic */
+        #magicButton:hover { background-image: linear-gradient(to bottom right, #3498db, #2980b9); }
+
+        #healButton { background-image: linear-gradient(to bottom right, #8e44ad, #9b59b6); } /* Purple for heal */
+        #healButton:hover { background-image: linear-gradient(to bottom right, #9b59b6, #8e44ad); }
+
+        #returnToMapButton, #returnFromSkillsButton, #returnFromBlacksmithButton, #endTurnButton, #continueStoryButton, #startGameButton { background-image: linear-gradient(to bottom right, #d35400, #e67e22); } /* Orange for return/start buttons */
+        #returnToMapButton:hover, #returnFromSkillsButton:hover, #returnFromBlacksmithButton:hover, #endTurnButton:hover, #continueStoryButton:hover, #startGameButton:hover { background-image: linear-gradient(to bottom right, #e67e22, #d35400); }
+
+        /* Skill buttons */
+        .skill-card button {
+            background-image: linear-gradient(to bottom right, #f39c12, #f1c40f); /* Yellow/Orange for skills */
+        }
+        .skill-card button:hover {
+            background-image: linear-gradient(to bottom right, #f1c40f, #f39c12);
+        }
+        .special-skill-button {
+            background-image: linear-gradient(to bottom right, #3498db, #2980b9); /* Blue for special skills in combat */
+        }
+        .special-skill-button:hover {
+            background-image: linear-gradient(to bottom right, #2980b9, #3498db);
+        }
+
+
+        /* Combat Arena Visuals */
+        .combat-arena {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end; /* Characters stand on the bottom */
+            height: 200px;
+            background: linear-gradient(to top, #5a7d9b, #4a6980); /* Arena ground */
+            border: 2px solid #a0522d; /* Sienna border */
+            border-radius: 10px;
+            overflow: hidden; /* Ensure characters don't spill out */
+            position: relative;
+        }
+
+        .character-display {
+            width: 80px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .character-sprite {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #7f8c8d; /* Default grey */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            color: white;
+            border: 2px solid #ecf0f1;
+            transition: transform 0.1s ease-out;
+            position: relative; /* For spell/heal effects */
+            overflow: hidden;
+        }
+
+        /* Player specific sprite */
+        #playerSprite {
+            background-color: #2ecc71; /* Green for player */
+        }
+
+        /* Enemy specific sprite */
+        #enemySprite {
+            background-color: #e74c3c; /* Red for enemy */
+        }
+
+        /* Combat animations */
+        .character-sprite.attacking {
+            transform: translateX(10px) scale(1.1); /* Simple forward movement */
+            box-shadow: 0 0 15px #f1c40f; /* Glow */
+        }
+        .character-sprite.taking-damage {
+            animation: shake 0.3s ease-in-out;
+            background-color: #f39c12; /* Flash yellow */
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Health bar styling */
+        .health-bar-container {
+            width: 100%;
+            height: 15px;
+            background-color: #555;
+            border-radius: 50px; /* More rounded */
+            overflow: hidden;
+            margin-top: 5px;
+            border: 1px solid #333;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        .health-bar {
+            height: 100%;
+            width: 100%; /* Initial width */
+            background-color: #27ae60;
+            transition: width 0.3s ease-out, background-color 0.3s ease-out;
+            background-image: linear-gradient(to right, #27ae60, #2ecc71);
+        }
+
+        /* Spell/Heal Effect Overlay */
+        .effect-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .effect-sprite {
+            position: absolute;
+            font-size: 2.5em;
+            opacity: 0;
+            transition: opacity 0.3s ease-out, transform 0.5s ease-out;
+        }
+
+        .effect-sprite.active {
+            opacity: 1;
+        }
+
+        /* Heal animation */
+        .effect-sprite.heal {
+            color: #2ecc71;
+            animation: heal-anim 2s forwards;
+        }
+        @keyframes heal-anim {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            80% { transform: translateY(-50px) scale(1); opacity: 1; }
+            100% { transform: translateY(-70px) scale(0.8); opacity: 0; }
+        }
+
+        /* Projectile animation */
+        .projectile {
+            position: absolute;
+            font-size: 2.5em;
+            opacity: 1;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            z-index: 5;
+        }
+        .projectile.moving {
+            opacity: 1;
+        }
+
+        /* Magic spell selection */
+        .magic-spell-options {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: absolute;
+            background-color: rgba(52, 73, 94, 0.95);
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 10;
+            top: 100%;
+            left: 0;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .magic-spell-options button {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.9em;
+            background-image: linear-gradient(to bottom right, #2980b9, #3498db);
+        }
+        .magic-spell-options button:hover {
+            background-image: linear-gradient(to bottom right, #3498db, #2980b9);
+        }
+
+        /* Map Styling */
+        .game-map {
+            display: grid;
+            grid-template-columns: repeat(5, 60px); /* 5x5 grid for map */
+            grid-template-rows: repeat(5, 60px);
+            gap: 5px;
+            width: 325px; /* 5 * 60px + 4 * 5px */
+            height: 325px;
+            margin: 20px auto;
+            border: 3px solid #f1c40f;
+            border-radius: 10px;
+            background-color: #4a6980;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-tile {
+            width: 60px;
+            height: 60px;
+            background-color: #7f8c8d; /* Default tile color */
+            border: 1px solid #34495e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em; /* For icons/text on tiles */
+            color: #ecf0f1;
+            cursor: pointer; /* For clickable tiles */
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        .map-tile.player-position {
+            background-color: #2ecc71; /* Green for player's current position */
+            border: 2px solid #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.7);
+        }
+
+        .map-tile.enemy-tile {
+            background-color: #e74c3c; /* Red for enemy tiles */
+        }
+
+        .map-tile.visited {
+            background-color: #95a5a6; /* Lighter grey for visited tiles */
+        }
+        .map-tile.visited.clickable:hover { /* Style for clickable adjacent visited tiles */
+            background-color: #a7b8b9;
+            border-color: #f1c40f;
+        }
+
+
+        .map-tile.safe-zone {
+            background-color: #3498db; /* Blue for safe zones */
+        }
+
+        .map-tile.cleared-enemy {
+            background-color: #27ae60; /* Green for cleared enemy tiles */
+            color: #fff;
+            font-size: 1.8em;
+        }
+
+        .map-tile.blacksmith-tile {
+            background-color: #8B4513; /* SaddleBrown for blacksmith */
+            color: #f1c40f;
+            font-size: 1.8em;
+        }
+
+        .map-tile.treasure-tile {
+            background-color: #f1c40f; /* Gold for treasure */
+            color: #2c3e50;
+            font-size: 1.8em;
+        }
+
+        .map-tile.story-event-tile {
+            background-color: #9b59b6; /* Purple for story event */
+            color: #ecf0f1;
+            font-size: 1.8em;
+        }
+
+
+        /* Hide/show sections based on game state */
+        .settings-screen { display: none; } 
+        .start-screen { display: none; }
+        .combat-view { display: none; }
+        .map-view { display: none; }
+        .skills-view { display: none; } 
+        .blacksmith-view { display: none; }
+        .game-over-screen, .game-win-screen { display: none; }
+        .story-intro { display: none; } 
+
+
+        .game-over-screen, .game-win-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+            font-size: 3em;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.7);
+            text-align: center;
+        }
+        .game-win-screen {
+            background-color: rgba(46, 204, 113, 0.8); /* Greenish for win */
+        }
+        .game-over-screen button, .game-win-screen button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background-image: linear-gradient(to bottom right, #3498db, #2980b9);
+        }
+        .game-over-screen button:hover, .game-win-screen button:hover {
+            background-image: linear-gradient(to bottom right, #2980b9, #3498db);
+        }
+
+        /* Blacksmith Item Card */
+        .item-card {
+            background-color: rgba(44, 62, 80, 0.9);
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 180px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .item-card h3 {
+            color: #f1c40f;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .item-card .item-icon {
+            font-size: 3em;
+            margin: 0 auto 10px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .item-card button {
+            margin-top: 10px;
+            width: 100%;
+            background-image: linear-gradient(to bottom right, #3498db, #2980b9);
+        }
+        .item-card button:hover {
+            background-image: linear-gradient(to bottom right, #2980b9, #3498db);
+        }
+        .item-card button.equipped {
+            background-image: linear-gradient(to bottom right, #27ae60, #2ecc71);
+            cursor: default;
+        }
+        .item-card button.equipped:hover {
+            background-image: linear-gradient(to bottom right, #27ae60, #2ecc71);
+            transform: none;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+        }
+
+        /* Class selection screen */
+        .class-selection-card {
+            background-color: rgba(52, 73, 94, 0.8);
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .class-selection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.7);
+        }
+        .class-selection-card .class-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .class-selection-card h3 {
+            color: #f1c40f;
+            margin: 0;
+        }
+
+        /* Skill Tree Card */
+        .skill-card {
+            background-color: rgba(44, 62, 80, 0.9);
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 180px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .skill-card h3 {
+            color: #f1c40f;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .skill-card .skill-icon {
+            font-size: 3em;
+            margin: 0 auto 10px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .skill-card button {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        /* Player Combat Stats Overlay */
+        .player-combat-stats {
+            position: absolute;
+            bottom: 10px; /* Adjust as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            color: #ecf0f1;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .player-combat-stats span {
+            font-weight: bold;
+        }
+
+        /* Active Buffs Display */
+        .active-buffs-display {
+            position: absolute;
+            top: -20px; /* Adjust to be above the sprite */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #f1c40f; /* Gold color for buffs */
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none; /* So it doesn't block clicks */
+            border: 1px solid #f1c40f;
+            box-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+        }
+        .active-buffs-display.active {
+            opacity: 1;
+        }
+
+        /* Settings specific styles */
+        .settings-option {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .settings-option label {
+            margin-right: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .settings-option input[type="radio"], .settings-option input[type="checkbox"] {
+            margin-right: 5px;
+            transform: scale(1.2); /* Slightly larger checkboxes/radios */
+        }
+        .settings-option input[type="radio"]:checked + label, .settings-option input[type="checkbox"]:checked + label {
+            color: #2ecc71; /* Highlight selected option */
+        }
+        .settings-option .radio-group label {
+            margin-left: 10px;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+            .game-container {
+                padding: 20px;
+                width: 95%;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            .player-info p, .enemy-info p, .game-messages, .skill-card p, .story-intro p, .settings-screen p {
+                font-size: 1em;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            .actions, .skills-container, .map-controls, .blacksmith-items, .class-selection, .special-skills-container, .settings-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .combat-arena {
+                height: 150px;
+            }
+            .character-display {
+                width: 60px;
+                height: 90px;
+            }
+            .character-sprite {
+                width: 50px;
+                height: 50px;
+                font-size: 2em;
+            }
+            .map-tile {
+                width: 50px; /* Smaller tiles */
+                height: 50px;
+            }
+            .game-map {
+                grid-template-columns: repeat(5, 50px);
+                grid-template-rows: repeat(5, 50px);
+                width: 270px; /* 5 * 50px + 4 * 5px */
+                height: 270px;
+            }
+            .item-card, .skill-card {
+                width: 100%;
+            }
+            .game-over-screen, .game-win-screen {
+                font-size: 2em;
+            }
+            .player-combat-stats {
+                font-size: 0.8em;
+                padding: 3px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .game-container {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+            button {
+                width: 100%; /* Full width buttons on very small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>The Quest for Glory!</h1>
+
+    <div class="game-container">
+        <div class="player-info">
+            <h2>Your Hero</h2>
+            <p>Name: <span id="playerName">Hero</span></p>
+            <p>Health: <span id="playerHealth">100</span> / <span id="playerMaxHealth">100</span></p>
+            <p><span id="manaLabel">Mana</span>: <span id="playerMana">50</span> / <span id="playerMaxMana">50</span></p>
+            <p>Attack: <span id="playerAttack">10</span></p>
+            <p>Defense: <span id="playerDefense">5</span></p>
+            <p><span id="magicPowerLabel">Magic Power</span>: <span id="playerMagicPower">15</span></p>
+            <p>Gold: <span id="playerGold">0</span></p>
+            <p>Talent Points: <span id="playerTalentPoints">0</span></p>
+            <p>Action Points: <span id="playerActionPoints">0</span></p>
+            <p>Weapon: <span id="equippedWeaponName">None</span></p>
+            <p>Armor: <span id="equippedArmorName">None</span></p>
+            <p>Off-hand: <span id="equippedOffhandName">None</span></p> </div>
+
+        <div class="game-messages" id="gameMessages">
+            Welcome, brave hero! Prepare for adventure!
+        </div>
+
+        <div class="settings-screen" id="settingsScreen">
+            <h2>Game Settings</h2>
+            <div class="settings-options">
+                <div class="settings-option">
+                    <label>Difficulty:</label>
+                    <div class="radio-group">
+                        <input type="radio" id="difficultyEasy" name="difficulty" value="easy">
+                        <label for="difficultyEasy">Easy</label>
+                        <input type="radio" id="difficultyNormal" name="difficulty" value="normal" checked>
+                        <label for="difficultyNormal">Normal</label>
+                        <input type="radio" id="difficultyHard" name="difficulty" value="hard">
+                        <label for="difficultyHard">Hard</label>
+                    </div>
+                </div>
+                <div class="settings-option">
+                    <input type="checkbox" id="storyToggle" checked>
+                    <label for="storyToggle">Show Story Introduction</label>
+                </div>
+                <div class="settings-option">
+                    <label>Game Mode:</label>
+                    <div class="radio-group">
+                        <input type="radio" id="modeFantasy" name="gameMode" value="fantasy" checked>
+                        <label for="modeFantasy">Fantasy</label>
+                        <input type="radio" id="modeSciFi" name="gameMode" value="sci-fi">
+                        <label for="modeSciFi">Sci-Fi</label>
+                    </div>
+                </div>
+                <button id="startGameButton">Start Game</button>
+            </div>
+        </div>
+
+        <div class="story-intro" id="storyIntro">
+            <h2 id="storyIntroTitle">The Shadow Blight</h2> <p id="storyText">
+                The land of Eldoria, once vibrant and full of life, is slowly succumbing to a creeping darkness known as the Shadow Blight. Forests wither, rivers turn stagnant, and hope dwindles with each passing day. Ancient prophecies speak of the Sunstone of Eldoria, a relic of immense light magic, as the only artifact capable of repelling this malevolent force.
+            </p>
+            <p>
+                You, a nascent hero, have felt the call. It is your destiny to brave the corrupted lands, overcome the creatures of the Blight, and retrieve the Sunstone. Only then can Eldoria be saved.
+            </p>
+            <button id="continueStoryButton">Begin Your Quest</button>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <h2>Choose Your Path</h2>
+            <div class="class-selection">
+                <div class="class-selection-card" data-class="warrior">
+                    <span class="class-icon" id="warriorClassIcon"></span>
+                    <h3>Warrior</h3>
+                    <p>High Attack & Defense</p>
+                </div>
+                <div class="class-selection-card" data-class="mage">
+                    <span class="class-icon" id="mageClassIcon"></span>
+                    <h3>Mage</h3>
+                    <p>High Magic Power & Mana</p>
+                </div>
+                <div class="class-selection-card" data-class="archer">
+                    <span class="class-icon" id="archerClassIcon"></span>
+                    <h3>Archer</h3>
+                    <p>Balanced Attack & Magic</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="combat-view" id="combatView">
+            <div class="enemy-info">
+                <h2>Enemy: <span id="enemyName"></span></h2>
+                <div class="health-bar-container"><div id="enemyHealthBar" class="health-bar"></div></div>
+                <p>Health: <span id="enemyHealth"></span> / <span id="enemyMaxHealth"></span></p>
+                <p>Attack: <span id="enemyAttack"></span></p>
+                <p>Defense: <span id="enemyDefense"></span></p>
+            </div>
+
+            <div class="combat-arena">
+                <div class="character-display">
+                    <div id="playerSprite" class="character-sprite"></div>
+                    <div class="health-bar-container"><div id="playerHealthBar" class="health-bar"></div></div>
+                    <div class="effect-overlay" id="playerEffectOverlay"></div>
+                    <div class="player-combat-stats">
+                        HP: <span id="combatPlayerHealth"></span> | 
+                        <span id="combatManaLabel">MP</span>: <span id="combatPlayerMana"></span> | 
+                        AP: <span id="combatPlayerAP"></span>
+                    </div>
+                    <div id="activeBuffsDisplay" class="active-buffs-display"></div>
+                </div>
+                <div class="character-display">
+                    <div id="enemySprite" class="character-sprite"></div>
+                    <div class="health-bar-container"><div id="enemyHealthBarCombat" class="health-bar"></div></div>
+                    <div class="effect-overlay" id="enemyEffectOverlay"></div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <h2>Combat Actions</h2>
+                <button id="attackButton">Attack</button>
+                <div style="position: relative;">
+                    <button id="magicButton">Cast Spell</button>
+                    <div class="magic-spell-options" id="magicSpellOptions" style="display: none;">
+                        <button data-spell-id="spell1"></button>
+                        <button data-spell-id="spell2"></button>
+                    </div>
+                </div>
+                <button id="healButton">Heal</button>
+                <div id="specialSkillsButtons" class="special-skills-container">
+                    </div>
+                <button id="endTurnButton">End Turn</button>
+                <button id="returnToMapButton" style="display: none;">Return to Map</button>
+            </div>
+        </div>
+
+        <div class="map-view" id="mapView">
+            <h2>Explore the World</h2>
+            <div class="game-map" id="gameMap">
+                </div>
+            <div class="map-controls">
+                <button id="moveUpButton">⬆️ Up</button>
+                <button id="moveLeftButton">⬅️ Left</button>
+                <button id="moveRightButton">➡️ Right</button>
+                <button id="moveDownButton">⬇️ Down</button>
+                <button id="viewSkillsButton">View Skills</button>
+                <button id="viewBlacksmithButton">Visit Blacksmith</button>
+            </div>
+        </div>
+
+        <div class="skills-view" id="skillsView">
+            <h2>Skill Tree</h2>
+            <div class="skills-container" id="skillsContainer">
+                </div>
+            <button id="returnFromSkillsButton">Return to Map</button>
+        </div>
+
+        <div class="blacksmith-view" id="blacksmithView">
+            <h2>The Blacksmith</h2>
+            <p>Your Gold: <span id="blacksmithPlayerGold">0</span></p> <div class="blacksmith-items" id="blacksmithItemsContainer">
+                </div>
+            <button id="returnFromBlacksmithButton">Return to Map</button>
+        </div>
+    </div>
+
+    <div class="game-over-screen" id="gameOverScreen">
+        <p>You have been defeated!</p>
+        <p>Game Over</p>
+        <button onclick="location.reload()">Restart Game</button>
+    </div>
+
+    <div class="game-win-screen" id="gameWinScreen">
+        <p>Congratulations!</p>
+        <p>You cleared the entire map!</p>
+        <p>You are the Champion!</p>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+
+    <script>
+        // --- Emoji Icons ---
+        const EMOJI_ICONS = {
+            // Player Classes (Fantasy)
+            warrior: `🥷`,
+            mage: `🧙‍♂️`,
+            archer: `🏹`,
+            // Player Classes (Sci-Fi)
+            cyber_warrior: `🦾`,
+            tech_mage: `🤖`,
+            blaster_expert: `🔫`, 
+
+            // Enemies (Fantasy)
+            goblin: `👹`,
+            skeleton: `💀`,
+            orc: `👺`,
+            troll: `🧌`,
+            dire_wolf: `🐺`,
+            bandit_leader: `🔪`,
+            stone_golem: `🗿`,
+            shadow_beast: `👻`,
+            giant_spider: `🕷️`,
+            slime_monster: `🦠`,
+            ogre: `🦍`,
+            dragon_whelp: `🐉`,
+            necromancer_lord: `💀`, 
+            
+            // Enemies (Sci-Fi)
+            drone: `🚁`,
+            robot_grunt: `🤖`,
+            alien_scout: `👽`,
+            cyber_hound: `🐕‍🦺`,
+            mech_soldier: `⚙️`,
+            mutant_abomination: `🧟`,
+            plasma_turret: `📡`,
+            shadow_droid: `🌑`,
+            bio_weapon: `🧪`,
+            nano_swarm: ` swarm`,
+            space_pirate: `🏴‍☠️`,
+            mech_dragon: `🐲`,
+            ai_overlord: `💻`, 
+
+            // Weapons (Fantasy)
+            sword: `🗡️`,
+            greatsword: `⚔️`,
+            axe: `🪓`,
+            hammer: `🔨`,
+
+            // Armor (Fantasy)
+            leather: `🎽`,
+            chainmail: `⛓️`,
+            plate: `🛡️`,
+
+            // Offhands (Wands/Bows - Fantasy)
+            wand: `🪄`,
+            staff: `杖`,
+            bow: `🏹`,
+            longbow: `🎯`,
+
+            // Weapons (Sci-Fi)
+            energy_sword: `⚡`,
+            plasma_rifle: `🔫`,
+            laser_cannon: `💥`,
+            power_fist: `👊`,
+
+            // Armor (Sci-Fi)
+            combat_suit: `🪖`,
+            reinforced_armor: `🦺`,
+            power_suit: `🚀`,
+
+            // Offhands (Sci-Fi)
+            energy_cell: `🔋`,
+            tech_module: `🎛️`,
+            blaster_rifle: `🔫`,
+            sniper_rifle: `🎯`,
+
+            // Map Icons
+            home: `🏠`,
+            blacksmith_map: `锻`, 
+            tech_shop_map: `🛠️`, 
+            cleared_map: `✅`,
+            enemy_map: `💀`, 
+            alien_map: `👾`, 
+            safe_map: `✨`,
+            player_map: `🚶`, 
+            treasure_map: `💰`, 
+            data_cache_map: `💾`, 
+            story_event_map: `📜`, 
+            anomaly_map: `🌌`, 
+            boss_map: `👑`, 
+            ai_core_map: `🧠`, 
+
+            // Combat Effects
+            heart: `❤️`,
+            fire: `🔥`,
+            lightning: `⚡`,
+            arrow: `➡️`, 
+            slash: `💨`, 
+            magic_orb: `🔮`, 
+            laser: `☄️`, 
+            energy_blast: `💥`, 
+        };
+
+        // --- DOM Element References ---
+        let warriorClassIcon;
+        let mageClassIcon;
+        let archerClassIcon;
+
+        const playerNameSpan = document.getElementById('playerName');
+        const playerHealthSpan = document.getElementById('playerHealth');
+        const playerMaxHealthSpan = document.getElementById('playerMaxHealth');
+        const playerManaSpan = document.getElementById('playerMana'); 
+        const playerMaxManaSpan = document.getElementById('playerMaxMana'); 
+        const manaLabel = document.getElementById('manaLabel'); 
+        const playerAttackSpan = document.getElementById('playerAttack');
+        const playerDefenseSpan = document.getElementById('playerDefense');
+        const playerMagicPowerSpan = document.getElementById('playerMagicPower');
+        const magicPowerLabel = document.getElementById('magicPowerLabel'); 
+        const playerGoldSpan = document.getElementById('playerGold');
+        const playerTalentPointsSpan = document.getElementById('playerTalentPoints');
+        const playerActionPointsSpan = document.getElementById('playerActionPoints');
+        const equippedWeaponNameSpan = document.getElementById('equippedWeaponName');
+        const equippedArmorNameSpan = document.getElementById('equippedArmorName');
+        const equippedOffhandNameSpan = document.getElementById('equippedOffhandName');
+
+        const enemyNameSpan = document.getElementById('enemyName');
+        const enemyHealthSpan = document.getElementById('enemyHealth');
+        const enemyMaxHealthSpan = document.getElementById('enemyMaxHealth');
+        const enemyAttackSpan = document.getElementById('enemyAttack');
+        const enemyDefenseSpan = document.getElementById('enemyDefense');
+        const enemyHealthBar = document.getElementById('enemyHealthBar');
+        const enemyHealthBarCombat = document.getElementById('enemyHealthBarCombat');
+        const playerHealthBar = document.getElementById('playerHealthBar');
+
+        const combatPlayerHealthSpan = document.getElementById('combatPlayerHealth');
+        const combatPlayerManaSpan = document.getElementById('combatPlayerMana'); 
+        const combatManaLabel = document.getElementById('combatManaLabel'); 
+        const combatPlayerAPSpan = document.getElementById('combatPlayerAP');
+
+        const activeBuffsDisplay = document.getElementById('activeBuffsDisplay');
+        const gameMessagesDiv = document.getElementById('gameMessages');
+        const attackButton = document.getElementById('attackButton');
+        const magicButton = document.getElementById('magicButton');
+        const magicSpellOptions = document.getElementById('magicSpellOptions');
+        const healButton = document.getElementById('healButton');
+        const endTurnButton = document.getElementById('endTurnButton');
+        const returnToMapButton = document.getElementById('returnToMapButton');
+
+        const settingsScreen = document.getElementById('settingsScreen');
+        const difficultyEasyRadio = document.getElementById('difficultyEasy');
+        const difficultyNormalRadio = document.getElementById('difficultyNormal');
+        const difficultyHardRadio = document.getElementById('difficultyHard');
+        const storyToggleCheckbox = document.getElementById('storyToggle');
+        const modeFantasyRadio = document.getElementById('modeFantasy');
+        const modeSciFiRadio = document.getElementById('modeSciFi');
+        const startGameButton = document.getElementById('startGameButton');
+
+        const storyIntro = document.getElementById('storyIntro');
+        const storyIntroTitle = document.getElementById('storyIntroTitle'); // Reference to story intro title
+        const continueStoryButton = document.getElementById('continueStoryButton');
+        const storyText = document.getElementById('storyText'); 
+
+        const startScreen = document.getElementById('startScreen');
+        const classSelectionCards = document.querySelectorAll('.class-selection-card');
+        
+        const combatView = document.getElementById('combatView');
+        const mapView = document.getElementById('mapView');
+        const skillsView = document.getElementById('skillsView');
+        const skillsContainer = document.getElementById('skillsContainer');
+        const blacksmithView = document.getElementById('blacksmithView');
+        const gameMapDiv = document.getElementById('gameMap');
+
+        let playerSprite;
+        let enemySprite;
+        const playerEffectOverlay = document.getElementById('playerEffectOverlay');
+        const enemyEffectOverlay = document.getElementById('enemyEffectOverlay');
+
+        const moveUpButton = document.getElementById('moveUpButton');
+        const moveLeftButton = document.getElementById('moveLeftButton');
+        const moveRightButton = document.getElementById('moveRightButton');
+        const moveDownButton = document.getElementById('moveDownButton');
+        const viewSkillsButton = document.getElementById('viewSkillsButton');
+        const viewBlacksmithButton = document.getElementById('viewBlacksmithButton');
+        const returnFromSkillsButton = document.getElementById('returnFromSkillsButton');
+        const returnFromBlacksmithButton = document.getElementById('returnFromBlacksmithButton');
+        const specialSkillsButtons = document.getElementById('specialSkillsButtons');
+
+        const blacksmithItemsContainer = document.getElementById('blacksmithItemsContainer');
+        const blacksmithPlayerGoldSpan = document.getElementById('blacksmithPlayerGold');
+
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const gameWinScreen = document.getElementById('gameWinScreen');
+
+        // --- Game State Variables ---
+        let player = {
+            name: "Brave Adventurer",
+            health: 100,
+            maxHealth: 100,
+            mana: 50, 
+            maxMana: 50, 
+            baseAttack: 0,
+            baseDefense: 0,
+            baseMagicPower: 0,
+            attack: 0,
+            defense: 0,
+            magicPower: 0,
+            gold: 0,
+            level: 1,
+            mapX: 0,
+            mapY: 0,
+            equippedWeapon: null,
+            equippedArmor: null,
+            equippedOffhand: null,
+            class: null, 
+            talentPoints: 0, 
+            actionPoints: 0, 
+            skills: {}, 
+            activeBuffs: {}, 
+            critChance: 0, 
+        };
+
+        let currentEnemy = null;
+        let enemyLevel = 1;
+
+        // --- Game Settings ---
+        let gameMode = 'fantasy'; 
+        let gameDifficulty = 'normal'; 
+        let showStory = true; 
+
+        // --- Game Configuration ---
+        const SPELL_COST = 5;
+        const HEAL_COST = 10;
+        const HEAL_AMOUNT = 20;
+        const BASE_ACTION_POINTS_PER_TURN = 3; 
+
+        const MAP_SIZE = 5;
+        let gameMap = [];
+        let totalEnemyTiles = 0;
+        let clearedEnemyTiles = 0;
+        let storyProgress = 0; 
+
+        // --- DIFFICULTY MODIFIERS ---
+        const DIFFICULTY_MODIFIERS = {
+            easy: { enemyHealth: 0.8, enemyAttack: 0.8, playerGoldBonus: 1.25 },
+            normal: { enemyHealth: 1.0, enemyAttack: 1.0, playerGoldBonus: 1.0 },
+            hard: { enemyHealth: 1.2, enemyAttack: 1.2, playerGoldBonus: 0.75 }
+        };
+
+        // --- STORY TEXTS ---
+        const FANTASY_STORY_TEXT = `
+            The land of Eldoria, once vibrant and full of life, is slowly succumbing to a creeping darkness known as the Shadow Blight. Forests wither, rivers turn stagnant, and hope dwindles with each passing day. Ancient prophecies speak of the Sunstone of Eldoria, a relic of immense light magic, as the only artifact capable of repelling this malevolent force.
+            <br><br>
+            You, a nascent hero, have felt the call. It is your destiny to brave the corrupted lands, overcome the creatures of the Blight, and retrieve the Sunstone. Only then can Eldoria be saved.
+        `;
+
+        const SCI_FI_STORY_TEXT = `
+            In the year 2477, the galactic federation is under siege by the rogue AI, Xylos. Its synthetic legions are consuming planets, converting organic life into data. The last bastion of freedom, Neo-Terra, faces imminent destruction. A desperate plea for heroes has gone out across the cosmos.
+            <br><br>
+            You, a promising recruit from the Resistance, must infiltrate Xylos's core, dismantle its network, and retrieve the Genesis Code – humanity's last hope for survival. The fate of the galaxy rests on your circuits... or your courage.
+        `;
+
+        // --- CLASS DEFINITIONS ---
+        const CLASS_DEFINITIONS = {
+            fantasy: {
+                warrior: { name: "Warrior", emoji: EMOJI_ICONS.warrior, baseAttack: 15, baseDefense: 8, baseMagicPower: 5, initialWeapon: 'iron_sword', initialArmor: 'leather_vest', initialOffhand: null, description: "High Attack & Defense" },
+                mage: { name: "Mage", emoji: EMOJI_ICONS.mage, baseAttack: 5, baseDefense: 3, baseMagicPower: 20, maxMana: 70, mana: 70, initialWeapon: null, initialArmor: null, initialOffhand: 'wooden_wand', description: "High Magic Power & Mana" },
+                archer: { name: "Archer", emoji: EMOJI_ICONS.archer, baseAttack: 10, baseDefense: 5, baseMagicPower: 10, initialWeapon: null, initialArmor: null, initialOffhand: 'short_bow', description: "Balanced Attack & Magic" },
+            },
+            'sci-fi': {
+                warrior: { name: "Cyber-Warrior", emoji: EMOJI_ICONS.cyber_warrior, baseAttack: 18, baseDefense: 10, baseMagicPower: 3, initialWeapon: 'energy_sword', initialArmor: 'combat_suit', initialOffhand: null, description: "Advanced Melee & Durability" },
+                mage: { name: "Tech-Mage", emoji: EMOJI_ICONS.tech_mage, baseAttack: 5, baseDefense: 3, baseMagicPower: 25, maxMana: 80, mana: 80, initialWeapon: null, initialArmor: null, initialOffhand: 'energy_cell', description: "High Tech Power & Battery" },
+                archer: { name: "Blaster Expert", emoji: EMOJI_ICONS.blaster_expert, baseAttack: 12, baseDefense: 6, baseMagicPower: 8, initialWeapon: null, initialArmor: null, initialOffhand: 'blaster_rifle', description: "Precise Ranged Attacks" },
+            }
+        };
+
+        // --- ITEM DATA ---
+        const FANTASY_WEAPONS = [
+            { id: 'iron_sword', name: 'Iron Sword', type: 'weapon', attack: 5, icon: EMOJI_ICONS.sword, cost: 30 },
+            { id: 'steel_greatsword', name: 'Steel Greatsword', type: 'weapon', attack: 10, icon: EMOJI_ICONS.greatsword, cost: 80 },
+            { id: 'battle_axe', name: 'Battle Axe', type: 'weapon', attack: 7, icon: EMOJI_ICONS.axe, cost: 50 },
+            { id: 'warhammer', name: 'Warhammer', type: 'weapon', attack: 12, icon: EMOJI_ICONS.hammer, cost: 150 }
+        ];
+        const FANTASY_ARMORS = [
+            { id: 'leather_vest', name: 'Leather Vest', type: 'armor', defense: 3, icon: EMOJI_ICONS.leather, cost: 25 },
+            { id: 'chainmail_armor', name: 'Chainmail Armor', type: 'armor', defense: 7, icon: EMOJI_ICONS.chainmail, cost: 70 },
+            { id: 'plate_armor', name: 'Plate Armor', type: 'armor', defense: 12, icon: EMOJI_ICONS.plate, cost: 120 }
+        ];
+        const FANTASY_OFFHANDS = [
+            { id: 'wooden_wand', name: 'Wooden Wand', type: 'offhand', magicPower: 5, icon: EMOJI_ICONS.wand, cost: 35 },
+            { id: 'crystal_staff', name: 'Crystal Staff', type: 'offhand', magicPower: 10, icon: EMOJI_ICONS.staff, cost: 90 },
+            { id: 'short_bow', name: 'Short Bow', type: 'offhand', attack: 4, magicPower: 2, icon: EMOJI_ICONS.bow, cost: 40 },
+            { id: 'long_bow', name: 'Long Bow', type: 'offhand', attack: 8, magicPower: 3, icon: EMOJI_ICONS.longbow, cost: 100 }
+        ];
+
+        const SCI_FI_WEAPONS = [
+            { id: 'energy_sword', name: 'Energy Sword', type: 'weapon', attack: 7, icon: EMOJI_ICONS.energy_sword, cost: 40 },
+            { id: 'plasma_rifle', name: 'Plasma Rifle', type: 'weapon', attack: 12, icon: EMOJI_ICONS.plasma_rifle, cost: 90 },
+            { id: 'laser_cannon', name: 'Laser Cannon', type: 'weapon', attack: 15, icon: EMOJI_ICONS.laser_cannon, cost: 180 },
+            { id: 'power_fist', name: 'Power Fist', type: 'weapon', attack: 9, icon: EMOJI_ICONS.power_fist, cost: 60 }
+        ];
+        const SCI_FI_ARMORS = [
+            { id: 'combat_suit', name: 'Combat Suit', type: 'armor', defense: 4, icon: EMOJI_ICONS.combat_suit, cost: 35 },
+            { id: 'reinforced_armor', name: 'Reinforced Armor', type: 'armor', defense: 8, icon: EMOJI_ICONS.reinforced_armor, cost: 80 },
+            { id: 'power_suit', name: 'Power Suit', type: 'armor', defense: 14, icon: EMOJI_ICONS.power_suit, cost: 140 }
+        ];
+        const SCI_FI_OFFHANDS = [
+            { id: 'energy_cell', name: 'Energy Cell', type: 'offhand', magicPower: 7, icon: EMOJI_ICONS.energy_cell, cost: 45 },
+            { id: 'tech_module', name: 'Tech Module', type: 'offhand', magicPower: 12, icon: EMOJI_ICONS.tech_module, cost: 100 },
+            { id: 'blaster_rifle', name: 'Blaster Rifle', type: 'offhand', attack: 6, magicPower: 3, icon: EMOJI_ICONS.blaster_rifle, cost: 50 },
+            { id: 'sniper_rifle', name: 'Sniper Rifle', type: 'offhand', attack: 10, magicPower: 4, icon: EMOJI_ICONS.sniper_rifle, cost: 120 }
+        ];
+
+        // --- ENEMY DATA ---
+        const FANTASY_ENEMY_TYPES = [
+            { name: "Goblin", emoji: EMOJI_ICONS.goblin },
+            { name: "Orc Grunt", emoji: EMOJI_ICONS.orc },
+            { name: "Dark Skeleton", emoji: EMOJI_ICONS.skeleton },
+            { name: "Dire Wolf", emoji: EMOJI_ICONS.dire_wolf },
+            { name: "Bandit Leader", emoji: EMOJI_ICONS.bandit_leader },
+            { name: "Stone Golem", emoji: EMOJI_ICONS.stone_golem },
+            { name: "Shadow Beast", emoji: EMOJI_ICONS.shadow_beast },
+            { name: "Giant Spider", emoji: EMOJI_ICONS.giant_spider },
+            { name: "Slime Monster", emoji: EMOJI_ICONS.slime_monster },
+            { name: "Ogre", emoji: EMOJI_ICONS.ogre },
+            { name: "Dragon Whelp", emoji: EMOJI_ICONS.dragon_whelp }
+        ];
+        const SCI_FI_ENEMY_TYPES = [
+            { name: "Combat Drone", emoji: EMOJI_ICONS.drone },
+            { name: "Robot Grunt", emoji: EMOJI_ICONS.robot_grunt },
+            { name: "Alien Scout", emoji: EMOJI_ICONS.alien_scout },
+            { name: "Cyber-Hound", emoji: EMOJI_ICONS.cyber_hound },
+            { name: "Mech Soldier", emoji: EMOJI_ICONS.mech_soldier },
+            { name: "Mutant Abomination", emoji: EMOJI_ICONS.mutant_abomination },
+            { name: "Plasma Turret", emoji: EMOJI_ICONS.plasma_turret },
+            { name: "Shadow Droid", emoji: EMOJI_ICONS.shadow_droid },
+            { name: "Bio-Weapon", emoji: EMOJI_ICONS.bio_weapon },
+            { name: "Nano-Swarm", emoji: EMOJI_ICONS.nano_swarm },
+            { name: "Space Pirate", emoji: EMOJI_ICONS.space_pirate },
+            { name: "Mech-Dragon", emoji: EMOJI_ICONS.mech_dragon }
+        ];
+
+        // --- SKILL TREE DEFINITIONS ---
+        const FANTASY_SKILLS = {
+            warrior: {
+                'heavy_strike': {
+                    name: 'Heavy Strike',
+                    description: 'Deals powerful physical damage, ignoring some defense.',
+                    levels: [
+                        { cost: 1, effect: { damageMultiplier: 1.5, defenseBypass: 3 }, apCost: 2 },
+                        { cost: 2, effect: { damageMultiplier: 1.8, defenseBypass: 5 }, apCost: 2 },
+                        { cost: 3, effect: { damageMultiplier: 2.2, defenseBypass: 8 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '💥'
+                },
+                'iron_skin': {
+                    name: 'Iron Skin',
+                    description: 'Permanently increases your defense.',
+                    levels: [
+                        { cost: 1, effect: { defenseBoost: 2 }, apCost: 0 },
+                        { cost: 2, effect: { defenseBoost: 3 }, apCost: 0 },
+                        { cost: 3, effect: { defenseBoost: 5 }, apCost: 0 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🛡️'
+                },
+                'battle_cry': {
+                    name: 'Battle Cry',
+                    description: 'Boosts your attack for the next 2 turns.',
+                    levels: [
+                        { cost: 1, effect: { attackBuff: 5, duration: 2 }, apCost: 1 },
+                        { cost: 2, effect: { attackBuff: 8, duration: 2 }, apCost: 1 },
+                        { cost: 3, effect: { attackBuff: 12, duration: 2 }, apCost: 1 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🗣️'
+                },
+                'cleave': {
+                    name: 'Cleave',
+                    description: 'A sweeping attack dealing high damage and bypassing significant defense.',
+                    levels: [
+                        { cost: 2, effect: { damageMultiplier: 2.0, defenseBypass: 10 }, apCost: 3 },
+                        { cost: 3, effect: { damageMultiplier: 2.5, defenseBypass: 15 }, apCost: 3 },
+                        { cost: 4, effect: { damageMultiplier: 3.0, defenseBypass: 20 }, apCost: 3 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: 'heavy_strike', icon: '⚔️'
+                }
+            },
+            mage: {
+                'arcane_barrage': {
+                    name: 'Arcane Barrage',
+                    description: 'Unleashes a volley of magical energy.',
+                    levels: [
+                        { cost: 1, effect: { magicDamageMultiplier: 1.6, manaCost: 8 }, apCost: 2 },
+                        { cost: 2, effect: { magicDamageMultiplier: 2.0, manaCost: 10 }, apCost: 2 },
+                        { cost: 3, effect: { magicDamageMultiplier: 2.5, manaCost: 12 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '✨'
+                },
+                'mana_flow': {
+                    name: 'Mana Flow',
+                    description: 'Increases your maximum mana.',
+                    levels: [
+                        { cost: 1, effect: { maxManaBoost: 15 }, apCost: 0 },
+                        { cost: 2, effect: { maxManaBoost: 20 }, apCost: 0 },
+                        { cost: 3, effect: { maxManaBoost: 25 }, apCost: 0 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '💧'
+                },
+                'mana_shield': {
+                    name: 'Mana Shield',
+                    description: 'Creates a magical shield, reducing incoming damage for this turn.',
+                    levels: [
+                        { cost: 1, effect: { damageReduction: 0.3, manaCost: 5 }, apCost: 1 },
+                        { cost: 2, effect: { damageReduction: 0.4, manaCost: 7 }, apCost: 1 },
+                        { cost: 3, effect: { damageReduction: 0.5, manaCost: 9 }, apCost: 1 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🌀'
+                },
+                'blizzard': {
+                    name: 'Blizzard',
+                    description: 'Summons a freezing blizzard, dealing massive magic damage.',
+                    levels: [
+                        { cost: 2, effect: { damageMultiplier: 2.5, manaCost: 15 }, apCost: 3 },
+                        { cost: 3, effect: { damageMultiplier: 3.0, manaCost: 18 }, apCost: 3 },
+                        { cost: 4, effect: { damageMultiplier: 3.5, manaCost: 20 }, apCost: 3 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: 'arcane_barrage', icon: '🌨️'
+                }
+            },
+            archer: {
+                'volley': {
+                    name: 'Volley',
+                    description: 'Fires multiple arrows at the enemy.',
+                    levels: [
+                        { cost: 1, effect: { damageMultiplier: 1.4, defenseBypass: 2 }, apCost: 2 },
+                        { cost: 2, effect: { damageMultiplier: 1.7, defenseBypass: 4 }, apCost: 2 },
+                        { cost: 3, effect: { damageMultiplier: 2.0, defenseBypass: 6 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🏹'
+                },
+                'eagle_eye': {
+                    name: 'Eagle Eye',
+                    description: 'Increases your critical hit chance.',
+                    levels: [
+                        { cost: 1, effect: { critChance: 0.05 }, apCost: 0 }, 
+                        { cost: 2, effect: { critChance: 0.10 }, apCost: 0 }, 
+                        { cost: 3, effect: { critChance: 0.15 }, apCost: 0 }  
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '👁️'
+                },
+                'gold_finder': {
+                    name: 'Gold Finder',
+                    description: 'Increases gold found from defeated enemies.',
+                    levels: [
+                        { cost: 1, effect: { goldBonus: 0.2 }, apCost: 0 }, 
+                        { cost: 2, effect: { goldBonus: 0.3 }, apCost: 0 }, 
+                        { cost: 3, effect: { goldBonus: 0.4 }, apCost: 0 }  
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '💰'
+                },
+                'piercing_shot': {
+                    name: 'Piercing Shot',
+                    description: 'A precise shot that bypasses a large portion of enemy defense.',
+                    levels: [
+                        { cost: 2, effect: { damageMultiplier: 1.2, defenseBypass: 10 }, apCost: 2 },
+                        { cost: 3, effect: { damageMultiplier: 1.4, defenseBypass: 15 }, apCost: 2 },
+                        { cost: 4, effect: { damageMultiplier: 1.6, defenseBypass: 20 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: 'volley', icon: ' xuyên'
+                }
+            }
+        };
+
+        const SCI_FI_SKILLS = {
+            warrior: { 
+                'power_strike': {
+                    name: 'Power Strike',
+                    description: 'Deals powerful energy damage, bypassing some shielding.',
+                    levels: [
+                        { cost: 1, effect: { damageMultiplier: 1.5, defenseBypass: 3 }, apCost: 2 },
+                        { cost: 2, effect: { damageMultiplier: 1.8, defenseBypass: 5 }, apCost: 2 },
+                        { cost: 3, effect: { damageMultiplier: 2.2, defenseBypass: 8 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '⚡'
+                },
+                'titan_plating': {
+                    name: 'Titan Plating',
+                    description: 'Permanently increases your shielding.',
+                    levels: [
+                        { cost: 1, effect: { defenseBoost: 2 }, apCost: 0 },
+                        { cost: 2, effect: { defenseBoost: 3 }, apCost: 0 },
+                        { cost: 3, effect: { defenseBoost: 5 }, apCost: 0 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🛡️'
+                },
+                'combat_stim': {
+                    name: 'Combat Stim',
+                    description: 'Boosts your offense for the next 2 cycles.',
+                    levels: [
+                        { cost: 1, effect: { attackBuff: 5, duration: 2 }, apCost: 1 },
+                        { cost: 2, effect: { attackBuff: 8, duration: 2 }, apCost: 1 },
+                        { cost: 3, effect: { attackBuff: 12, duration: 2 }, apCost: 1 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '💉'
+                },
+                'plasma_cleave': {
+                    name: 'Plasma Cleave',
+                    description: 'A wide arc of plasma dealing high damage and bypassing significant shielding.',
+                    levels: [
+                        { cost: 2, effect: { damageMultiplier: 2.0, defenseBypass: 10 }, apCost: 3 },
+                        { cost: 3, effect: { damageMultiplier: 2.5, defenseBypass: 15 }, apCost: 3 },
+                        { cost: 4, effect: { damageMultiplier: 3.0, defenseBypass: 20 }, apCost: 3 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: 'power_strike', icon: '💥'
+                }
+            },
+            mage: { 
+                'energy_barrage': {
+                    name: 'Energy Barrage',
+                    description: 'Unleashes a volley of raw energy.',
+                    levels: [
+                        { cost: 1, effect: { magicDamageMultiplier: 1.6, manaCost: 8 }, apCost: 2 },
+                        { cost: 2, effect: { magicDamageMultiplier: 2.0, manaCost: 10 }, apCost: 2 },
+                        { cost: 3, effect: { magicDamageMultiplier: 2.5, manaCost: 12 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '✨'
+                },
+                'battery_optimization': {
+                    name: 'Battery Optimization',
+                    description: 'Increases your maximum battery capacity.',
+                    levels: [
+                        { cost: 1, effect: { maxManaBoost: 15 }, apCost: 0 },
+                        { cost: 2, effect: { maxManaBoost: 20 }, apCost: 0 },
+                        { cost: 3, effect: { maxManaBoost: 25 }, apCost: 0 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🔋'
+                },
+                'energy_shield': {
+                    name: 'Energy Shield',
+                    description: 'Creates a temporary energy shield, reducing incoming damage for this cycle.',
+                    levels: [
+                        { cost: 1, effect: { damageReduction: 0.3, manaCost: 5 }, apCost: 1 },
+                        { cost: 2, effect: { damageReduction: 0.4, manaCost: 7 }, apCost: 1 },
+                        { cost: 3, effect: { damageReduction: 0.5, manaCost: 9 }, apCost: 1 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🌀'
+                },
+                'graviton_surge': {
+                    name: 'Graviton Surge',
+                    description: 'Summons a localized gravity anomaly, dealing massive energy damage.',
+                    levels: [
+                        { cost: 2, effect: { damageMultiplier: 2.5, manaCost: 15 }, apCost: 3 },
+                        { cost: 3, effect: { damageMultiplier: 3.0, manaCost: 18 }, apCost: 3 },
+                        { cost: 4, effect: { damageMultiplier: 3.5, manaCost: 20 }, apCost: 3 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: 'energy_barrage', icon: '🕳️'
+                }
+            },
+            archer: { 
+                'burst_fire': {
+                    name: 'Burst Fire',
+                    description: 'Fires a rapid burst of projectiles at the enemy.',
+                    levels: [
+                        { cost: 1, effect: { damageMultiplier: 1.4, defenseBypass: 2 }, apCost: 2 },
+                        { cost: 2, effect: { damageMultiplier: 1.7, defenseBypass: 4 }, apCost: 2 },
+                        { cost: 3, effect: { damageMultiplier: 2.0, defenseBypass: 6 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🔫'
+                },
+                'precision_optics': {
+                    name: 'Precision Optics',
+                    description: 'Increases your critical hit chance.',
+                    levels: [
+                        { cost: 1, effect: { critChance: 0.05 }, apCost: 0 }, 
+                        { cost: 2, effect: { critChance: 0.10 }, apCost: 0 }, 
+                        { cost: 3, effect: { critChance: 0.15 }, apCost: 0 }  
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '🎯'
+                },
+                'resource_scavenger': {
+                    name: 'Resource Scavenger',
+                    description: 'Increases credits found from defeated enemies.',
+                    levels: [
+                        { cost: 1, effect: { goldBonus: 0.2 }, apCost: 0 }, 
+                        { cost: 2, effect: { goldBonus: 0.3 }, apCost: 0 }, 
+                        { cost: 3, effect: { goldBonus: 0.4 }, apCost: 0 }  
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: null, icon: '💰'
+                },
+                'armor_piercer': {
+                    name: 'Armor Piercer',
+                    description: 'A specialized shot that bypasses a large portion of enemy armor.',
+                    levels: [
+                        { cost: 2, effect: { damageMultiplier: 1.2, defenseBypass: 10 }, apCost: 2 },
+                        { cost: 3, effect: { damageMultiplier: 1.4, defenseBypass: 15 }, apCost: 2 },
+                        { cost: 4, effect: { damageMultiplier: 1.6, defenseBypass: 20 }, apCost: 2 }
+                    ],
+                    currentLevel: 0, maxLevel: 3, prerequisite: 'burst_fire', icon: ' xuyên'
+                }
+            }
+        };
+
+
+        // --- Game Views ---
+        const VIEWS = {
+            SETTINGS: 'settings', 
+            STORY_INTRO: 'story_intro',
+            START: 'start',
+            MAP: 'map',
+            COMBAT: 'combat',
+            SKILLS: 'skills',
+            BLACKSMITH: 'blacksmith',
+            GAMEOVER: 'gameover',
+            GAMEWIN: 'gamewin'
+        };
+        let currentView = VIEWS.SETTINGS; 
+
+        // --- Helper Functions ---
+
+        function switchView(viewName) {
+            settingsScreen.style.display = 'none'; 
+            storyIntro.style.display = 'none';
+            startScreen.style.display = 'none';
+            combatView.style.display = 'none';
+            mapView.style.display = 'none';
+            skillsView.style.display = 'none';
+            blacksmithView.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            gameWinScreen.style.display = 'none';
+
+            magicSpellOptions.style.display = 'none'; 
+
+            switch (viewName) {
+                case VIEWS.SETTINGS: 
+                    settingsScreen.style.display = 'flex';
+                    break;
+                case VIEWS.STORY_INTRO:
+                    storyIntro.style.display = 'flex';
+                    break;
+                case VIEWS.START:
+                    startScreen.style.display = 'flex';
+                    break;
+                case VIEWS.MAP:
+                    mapView.style.display = 'block';
+                    break;
+                case VIEWS.COMBAT:
+                    combatView.style.display = 'block';
+                    break;
+                case VIEWS.SKILLS:
+                    skillsView.style.display = 'block';
+                    renderSkillTree(); 
+                    break;
+                case VIEWS.BLACKSMITH:
+                    blacksmithView.style.display = 'block';
+                    renderBlacksmithItems();
+                    break;
+                case VIEWS.GAMEOVER:
+                    gameOverScreen.style.display = 'flex';
+                    break;
+                case VIEWS.GAMEWIN:
+                    gameWinScreen.style.display = 'flex';
+                    break;
+            }
+            currentView = viewName;
+            updateUI();
+        }
+
+        function displayMessage(message, type = 'info') {
+            const p = document.createElement('p');
+            p.textContent = message;
+            p.classList.add(type);
+            gameMessagesDiv.appendChild(p);
+            gameMessagesDiv.scrollTop = gameMessagesDiv.scrollHeight;
+            if (gameMessagesDiv.children.length > 10) {
+                gameMessagesDiv.removeChild(gameMessagesDiv.children[0]);
+            }
+        }
+
+        function calculatePlayerStats() {
+            player.attack = player.baseAttack + (player.equippedWeapon ? player.equippedWeapon.attack : 0) + (player.equippedOffhand && player.equippedOffhand.attack ? player.equippedOffhand.attack : 0);
+            player.defense = player.baseDefense + (player.equippedArmor ? player.equippedArmor.defense : 0);
+            player.magicPower = player.baseMagicPower + (player.equippedOffhand && player.equippedOffhand.magicPower ? player.equippedOffhand.magicPower : 0);
+            player.critChance = 0;
+
+            if (player.activeBuffs && player.activeBuffs.battle_cry) {
+                player.attack += player.activeBuffs.battle_cry.amount;
+            }
+            const activeSkills = gameMode === 'fantasy' ? FANTASY_SKILLS : SCI_FI_SKILLS;
+            const playerSkills = player.skills || {};
+            
+            if (player.class === 'warrior' && playerSkills.iron_skin && playerSkills.iron_skin.currentLevel > 0) {
+                const levelData = activeSkills[player.class].iron_skin.levels[playerSkills.iron_skin.currentLevel - 1];
+                player.defense += levelData.effect.defenseBoost;
+            } else if (player.class === 'cyber_warrior' && playerSkills.titan_plating && playerSkills.titan_plating.currentLevel > 0) { 
+                const levelData = activeSkills[player.class].titan_plating.levels[playerSkills.titan_plating.currentLevel - 1];
+                player.defense += levelData.effect.defenseBoost;
+            }
+
+            if (player.class === 'archer' && playerSkills.eagle_eye && playerSkills.eagle_eye.currentLevel > 0) {
+                const levelData = activeSkills[player.class].eagle_eye.levels[playerSkills.eagle_eye.currentLevel - 1];
+                player.critChance = levelData.effect.critChance;
+            } else if (player.class === 'blaster_expert' && playerSkills.precision_optics && playerSkills.precision_optics.currentLevel > 0) { 
+                const levelData = activeSkills[player.class].precision_optics.levels[playerSkills.precision_optics.currentLevel - 1];
+                player.critChance = levelData.effect.critChance;
+            }
+        }
+
+        function updateUI() {
+            calculatePlayerStats();
+
+            manaLabel.textContent = gameMode === 'fantasy' ? 'Mana' : 'Battery';
+            magicPowerLabel.textContent = gameMode === 'fantasy' ? 'Magic Power' : 'Tech Power';
+            combatManaLabel.textContent = gameMode === 'fantasy' ? 'MP' : 'BT';
+
+            playerNameSpan.textContent = player.name;
+            playerHealthSpan.textContent = player.health;
+            playerMaxHealthSpan.textContent = player.maxHealth;
+            playerManaSpan.textContent = player.mana;
+            playerMaxManaSpan.textContent = player.maxMana;
+            playerAttackSpan.textContent = player.attack;
+            playerDefenseSpan.textContent = player.defense;
+            playerMagicPowerSpan.textContent = player.magicPower;
+            playerGoldSpan.textContent = player.gold;
+            playerTalentPointsSpan.textContent = player.talentPoints;
+            playerActionPointsSpan.textContent = player.actionPoints;
+            equippedWeaponNameSpan.textContent = player.equippedWeapon ? player.equippedWeapon.name : 'None';
+            equippedArmorNameSpan.textContent = player.equippedArmor ? player.equippedArmor.name : 'None';
+            equippedOffhandNameSpan.textContent = player.equippedOffhand ? player.equippedOffhand.name : 'None';
+
+            const playerHealthPercentage = (player.health / player.maxHealth) * 100;
+            playerHealthBar.style.width = `${Math.max(0, playerHealthPercentage)}%`;
+            playerHealthBar.style.backgroundColor = playerHealthPercentage > 50 ? '#27ae60' : (playerHealthPercentage > 20 ? '#f39c12' : '#e74c3c');
+
+            combatPlayerHealthSpan.textContent = player.health;
+            combatPlayerManaSpan.textContent = player.mana;
+            combatPlayerAPSpan.textContent = player.actionPoints;
+
+            if (currentEnemy) {
+                enemyNameSpan.textContent = currentEnemy.name;
+                enemyHealthSpan.textContent = currentEnemy.health;
+                enemyMaxHealthSpan.textContent = currentEnemy.maxHealth;
+                enemyAttackSpan.textContent = currentEnemy.attack;
+                enemyDefenseSpan.textContent = currentEnemy.defense;
+
+                const enemyHealthPercentage = (currentEnemy.health / currentEnemy.maxHealth) * 100;
+                enemyHealthBar.style.width = `${Math.max(0, enemyHealthPercentage)}%`;
+                enemyHealthBar.style.backgroundColor = enemyHealthPercentage > 50 ? '#27ae60' : (enemyHealthPercentage > 20 ? '#f39c12' : '#e74c3c');
+                enemyHealthBarCombat.style.width = `${Math.max(0, enemyHealthPercentage)}%`;
+                enemyHealthBarCombat.style.backgroundColor = enemyHealthPercentage > 50 ? '#27ae60' : (enemyHealthPercentage > 20 ? '#f39c12' : '#e74c3c');
+
+            } else {
+                enemyNameSpan.textContent = "None";
+                enemyHealthSpan.textContent = "N/A";
+                enemyMaxHealthSpan.textContent = "N/A";
+                enemyAttackSpan.textContent = "N/A";
+                enemyDefenseSpan.textContent = "N/A";
+                enemyHealthBar.style.width = '0%';
+                enemyHealthBarCombat.style.width = '0%';
+            }
+
+            const inCombat = currentView === VIEWS.COMBAT && currentEnemy;
+            attackButton.disabled = !inCombat || player.health <= 0 || player.actionPoints < 1;
+            magicButton.disabled = !inCombat || player.mana < SPELL_COST || player.health <= 0 || player.actionPoints < 2;
+            healButton.disabled = !inCombat || player.mana < HEAL_COST || player.health === player.maxHealth || player.health <= 0 || player.actionPoints < 1;
+            endTurnButton.disabled = !inCombat || player.health <= 0;
+            returnToMapButton.style.display = (currentView === VIEWS.COMBAT && !currentEnemy && player.health > 0) ? 'inline-block' : 'none';
+
+            attackButton.textContent = `Attack (1 AP)`;
+            magicButton.textContent = `Cast Spell (2 AP)`;
+            healButton.textContent = `Heal (1 AP)`;
+
+            if (currentView === VIEWS.COMBAT) {
+                renderSpecialSkillButtons();
+            }
+
+            const canMove = player.health > 0 && currentView === VIEWS.MAP;
+            moveUpButton.disabled = !canMove || player.mapY === 0;
+            moveDownButton.disabled = !canMove || player.mapY === MAP_SIZE - 1;
+            moveLeftButton.disabled = !canMove || player.mapX === 0;
+            moveRightButton.disabled = !canMove || player.mapX === MAP_SIZE - 1;
+            viewSkillsButton.disabled = !canMove;
+            viewBlacksmithButton.disabled = !canMove;
+            returnFromSkillsButton.disabled = player.health <= 0;
+            returnFromBlacksmithButton.disabled = player.health <= 0;
+
+            if (currentView === VIEWS.BLACKSMITH) {
+                blacksmithPlayerGoldSpan.textContent = player.gold;
+            }
+
+            let buffMessages = [];
+            if (player.activeBuffs && player.activeBuffs.battle_cry && player.activeBuffs.battle_cry.duration > 0) {
+                buffMessages.push(`BATTLE CRY ACTIVE (${player.activeBuffs.battle_cry.duration} turns)`);
+            } else if (player.activeBuffs && player.activeBuffs.combat_stim && player.activeBuffs.combat_stim.duration > 0) {
+                buffMessages.push(`COMBAT STIM ACTIVE (${player.activeBuffs.combat_stim.duration} cycles)`);
+            }
+            
+            if (buffMessages.length > 0) {
+                activeBuffsDisplay.textContent = buffMessages.join(', ');
+                activeBuffsDisplay.classList.add('active');
+            } else {
+                activeBuffsDisplay.textContent = '';
+                activeBuffsDisplay.classList.remove('active');
+            }
+        }
+
+        function generateEnemy() {
+            const modifiers = DIFFICULTY_MODIFIERS[gameDifficulty];
+            const activeEnemyTypes = gameMode === 'fantasy' ? FANTASY_ENEMY_TYPES : SCI_FI_ENEMY_TYPES;
+            const randomEnemyType = activeEnemyTypes[Math.floor(Math.random() * activeEnemyTypes.length)];
+
+            const baseHealth = (30 + (enemyLevel * 10)) * modifiers.enemyHealth;
+            const baseAttack = (5 + (enemyLevel * 2)) * modifiers.enemyAttack;
+            const baseDefense = (2 + (enemyLevel * 1)) * modifiers.enemyAttack; 
+            const goldDrop = (10 + (enemyLevel * 5)) * modifiers.playerGoldBonus;
+
+            enemySprite.textContent = randomEnemyType.emoji;
+
+            return {
+                name: `${randomEnemyType.name} (Lvl ${enemyLevel})`,
+                health: Math.round(baseHealth),
+                maxHealth: Math.round(baseHealth),
+                attack: Math.round(baseAttack),
+                defense: Math.round(baseDefense),
+                goldDrop: Math.round(goldDrop)
+            };
+        }
+
+        function checkGameEnd() {
+            if (player.health <= 0) {
+                displayMessage("You have been defeated! Game Over.", 'combat');
+                switchView(VIEWS.GAMEOVER);
+                attackButton.disabled = true;
+                magicButton.disabled = true;
+                healButton.disabled = true;
+                endTurnButton.disabled = true;
+                returnToMapButton.style.display = 'none';
+            } else if (clearedEnemyTiles === totalEnemyTiles && enemyLevel > 10) { 
+                displayMessage("All enemies cleared! You win!", 'info');
+                switchView(VIEWS.GAMEWIN);
+            }
+            // updateUI(); // Removed from here, as it's called by checkCombatEnd or the action that led here
+        }
+
+        function checkCombatEnd() {
+            if (currentEnemy && currentEnemy.health <= 0) {
+                displayMessage(`${currentEnemy.name} has been defeated!`, 'combat');
+                let goldGained = currentEnemy.goldDrop;
+                const activeSkills = gameMode === 'fantasy' ? FANTASY_SKILLS : SCI_FI_SKILLS;
+                if (player.skills && ((gameMode === 'fantasy' && player.skills.gold_finder && player.skills.gold_finder.currentLevel > 0) || (gameMode === 'sci-fi' && player.skills.resource_scavenger && player.skills.resource_scavenger.currentLevel > 0))) {
+                    const skillId = gameMode === 'fantasy' ? 'gold_finder' : 'resource_scavenger';
+                    const skillLevelData = activeSkills[player.class][skillId].levels[player.skills[skillId].currentLevel - 1];
+                    goldGained = Math.round(goldGained * (1 + skillLevelData.effect.goldBonus));
+                }
+                player.gold += goldGained;
+                player.talentPoints += 1; 
+                displayMessage(`You gained ${goldGained} ${gameMode === 'fantasy' ? 'gold' : 'credits'} and 1 talent point!`, 'info');
+                
+                const tile = gameMap[player.mapY][player.mapX];
+                if (tile.type === 'enemy' || tile.type === 'boss') { 
+                    tile.type = 'cleared';
+                    tile.content = EMOJI_ICONS.cleared_map;
+                }
+
+                enemyLevel++;
+                clearedEnemyTiles++; 
+                
+                currentEnemy = null; 
+
+                attackButton.disabled = true;
+                magicButton.disabled = true;
+                healButton.disabled = true;
+                endTurnButton.disabled = true;
+                returnToMapButton.style.display = 'inline-block'; 
+
+                renderMap(); 
+                checkGameEnd(); 
+            } 
+            else if (player.health <= 0) {
+                checkGameEnd(); 
+            }
+            updateUI(); 
+        }
+
+        function animateEffect(effectType, targetOverlay) {
+            const effectSprite = document.createElement('div');
+            effectSprite.classList.add('effect-sprite', effectType);
+            
+            if (effectType === 'heal') {
+                effectSprite.textContent = EMOJI_ICONS.heart;
+                effectSprite.style.left = '50%';
+                effectSprite.style.top = '50%';
+                effectSprite.style.transform = 'translate(-50%, -50%)';
+            } else if (effectType === 'fireball') {
+                effectSprite.textContent = EMOJI_ICONS.fire;
+                effectSprite.style.left = '0%';
+                effectSprite.style.top = '50%';
+            } else if (effectType === 'lightning') {
+                effectSprite.textContent = EMOJI_ICONS.lightning;
+                effectSprite.style.left = '0%';
+                effectSprite.style.top = '50%';
+            } else if (effectType === 'laser') { 
+                effectSprite.textContent = EMOJI_ICONS.laser;
+                effectSprite.style.left = '0%';
+                effectSprite.style.top = '50%';
+            } else if (effectType === 'energy_blast') { 
+                effectSprite.textContent = EMOJI_ICONS.energy_blast;
+                effectSprite.style.left = '0%';
+                effectSprite.style.top = '50%';
+            }
+
+            targetOverlay.appendChild(effectSprite);
+            effectSprite.classList.add('active');
+
+            setTimeout(() => {
+                effectSprite.remove();
+            }, effectType === 'heal' ? 2000 : 500);
+        }
+
+        function createProjectileAnimation(startElement, endElement, projectileEmoji, callback) {
+            const combatArena = document.querySelector('.combat-arena');
+            const projectile = document.createElement('div');
+            projectile.classList.add('projectile');
+            projectile.textContent = projectileEmoji;
+            combatArena.appendChild(projectile);
+
+            const startRect = startElement.getBoundingClientRect();
+            const endRect = endElement.getBoundingClientRect();
+            const arenaRect = combatArena.getBoundingClientRect();
+
+            const startX = startRect.left - arenaRect.left + startRect.width / 2;
+            const startY = startRect.top - arenaRect.top + startRect.height / 2;
+            const endX = endRect.left - arenaRect.left + endRect.width / 2;
+            const endY = endRect.top - arenaRect.top + endRect.height / 2;
+
+            projectile.style.left = `${startX}px`;
+            projectile.style.top = `${startY}px`;
+
+            void projectile.offsetWidth; 
+
+            projectile.style.transform = `translate(${endX - startX}px, ${endY - startY}px)`;
+            projectile.style.opacity = '0'; 
+            projectile.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+
+            setTimeout(() => {
+                projectile.remove();
+                if (callback) callback();
+            }, 500); 
+        }
+
+        function playerAttack() {
+            if (!currentEnemy) return;
+            if (player.actionPoints < 1) {
+                displayMessage("Not enough Action Points!", 'error');
+                return;
+            }
+            if (player.health <= 0) {
+                displayMessage("You are too weak to attack!", 'error');
+                return;
+            }
+
+            player.actionPoints -= 1;
+            playerSprite.classList.add('attacking');
+            setTimeout(() => playerSprite.classList.remove('attacking'), 100);
+
+            let projectileEmoji = gameMode === 'fantasy' ? EMOJI_ICONS.slash : EMOJI_ICONS.energy_blast; 
+            if (player.class === 'archer' && player.equippedOffhand && (player.equippedOffhand.name.includes('Bow'))) {
+                projectileEmoji = EMOJI_ICONS.arrow;
+            } else if (player.class === 'blaster_expert' && player.equippedOffhand && (player.equippedOffhand.name.includes('Blaster') || player.equippedOffhand.name.includes('Sniper'))) {
+                projectileEmoji = EMOJI_ICONS.laser;
+            }
+
+            createProjectileAnimation(playerSprite, enemySprite, projectileEmoji, () => {
+                let damage = Math.max(1, player.attack - currentEnemy.defense + Math.floor(Math.random() * 5));
+                if ((player.class === 'archer' || player.class === 'blaster_expert') && player.critChance && Math.random() < player.critChance) {
+                    damage = Math.round(damage * 1.5); 
+                    displayMessage(`Critical Hit!`, 'combat');
+                }
+
+                currentEnemy.health -= damage;
+                displayMessage(`You strike ${currentEnemy.name} for ${damage} damage!`, 'combat');
+                
+                enemySprite.classList.add('taking-damage');
+                setTimeout(() => enemySprite.classList.remove('taking-damage'), 300);
+
+                // updateUI(); // Called by checkCombatEnd
+                checkCombatEnd();
+            });
+        }
+
+        function toggleMagicSpellOptions() {
+            const spellButton1 = magicSpellOptions.querySelector('button[data-spell-id="spell1"]');
+            const spellButton2 = magicSpellOptions.querySelector('button[data-spell-id="spell2"]');
+
+            if (gameMode === 'fantasy') {
+                spellButton1.textContent = 'Fireball 🔥';
+                spellButton1.dataset.spellType = 'fireball';
+                spellButton2.textContent = 'Lightning ⚡';
+                spellButton2.dataset.spellType = 'lightning';
+            } else { 
+                spellButton1.textContent = 'Laser Beam ☄️';
+                spellButton1.dataset.spellType = 'laser_beam';
+                spellButton2.textContent = 'Energy Pulse 💥';
+                spellButton2.dataset.spellType = 'energy_pulse';
+            }
+            magicSpellOptions.style.display = magicSpellOptions.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function playerMagic(spellType) {
+            if (!currentEnemy) return;
+            if (player.actionPoints < 2) {
+                displayMessage("Not enough Action Points for this spell!", 'error');
+                return;
+            }
+            if (player.mana < SPELL_COST) {
+                displayMessage(`Not enough ${gameMode === 'fantasy' ? 'Mana' : 'Battery'} Points for this spell!`, 'error');
+                return;
+            }
+            if (player.health <= 0) {
+                displayMessage("You are too weak to cast a spell!", 'error');
+                return;
+            }
+
+            player.mana -= SPELL_COST;
+            player.actionPoints -= 2;
+            playerSprite.classList.add('attacking');
+            setTimeout(() => playerSprite.classList.remove('attacking'), 100);
+
+            let projectileEmoji;
+            let damage = 0;
+            let message = "";
+
+            if (gameMode === 'fantasy') {
+                if (spellType === 'fireball') {
+                    projectileEmoji = EMOJI_ICONS.fire;
+                    damage = Math.max(1, player.magicPower + Math.floor(Math.random() * 8) - Math.floor(currentEnemy.defense / 2));
+                    message = `You unleash a fiery blast on ${currentEnemy.name} for ${damage} damage!`;
+                } else if (spellType === 'lightning') {
+                    projectileEmoji = EMOJI_ICONS.lightning;
+                    damage = Math.max(1, player.magicPower + Math.floor(Math.random() * 5) - Math.floor(currentEnemy.defense / 4));
+                    message = `A bolt of lightning strikes ${currentEnemy.name} for ${damage} damage!`;
+                }
+            } else { 
+                if (spellType === 'laser_beam') {
+                    projectileEmoji = EMOJI_ICONS.laser;
+                    damage = Math.max(1, player.magicPower + Math.floor(Math.random() * 8) - Math.floor(currentEnemy.defense / 2));
+                    message = `You fire a concentrated laser beam at ${currentEnemy.name} for ${damage} damage!`;
+                } else if (spellType === 'energy_pulse') {
+                    projectileEmoji = EMOJI_ICONS.energy_blast;
+                    damage = Math.max(1, player.magicPower + Math.floor(Math.random() * 5) - Math.floor(currentEnemy.defense / 4));
+                    message = `An energy pulse hits ${currentEnemy.name} for ${damage} damage!`;
+                }
+            }
+            
+            createProjectileAnimation(playerSprite, enemySprite, projectileEmoji, () => {
+                currentEnemy.health -= damage;
+                displayMessage(message, 'combat');
+                
+                enemySprite.classList.add('taking-damage');
+                setTimeout(() => enemySprite.classList.remove('taking-damage'), 300);
+                magicSpellOptions.style.display = 'none';
+                // updateUI(); // Called by checkCombatEnd
+                checkCombatEnd();
+            });
+        }
+
+        function playerHeal() {
+            // Check if currentEnemy exists before healing, as healing is a combat action
+            if (!currentEnemy && currentView === VIEWS.COMBAT) {
+                 displayMessage("No enemy to fight, cannot heal in this state.", 'error');
+                 return;
+            }
+             if (player.actionPoints < 1) {
+                displayMessage("Not enough Action Points to heal!", 'error');
+                return;
+            }
+            if (player.mana < HEAL_COST) {
+                displayMessage(`Not enough ${gameMode === 'fantasy' ? 'Mana' : 'Battery'} Points to heal!`, 'error');
+                return;
+            }
+            if (player.health === player.maxHealth) {
+                displayMessage("Your health is already full!", 'info');
+                return;
+            }
+            if (player.health <= 0) {
+                displayMessage("You are too weak to heal!", 'error');
+                return;
+            }
+
+            player.mana -= HEAL_COST;
+            player.actionPoints -= 1;
+            player.health = Math.min(player.maxHealth, player.health + HEAL_AMOUNT);
+            displayMessage(`You heal yourself for ${HEAL_AMOUNT} health!`, 'info');
+            
+            animateEffect('heal', playerEffectOverlay);
+
+            // updateUI(); // Called by checkCombatEnd if in combat
+            if (currentEnemy) { // Only call checkCombatEnd if there's an enemy
+                checkCombatEnd();
+            } else {
+                updateUI(); // If not in combat (e.g. using a skill outside of combat, though heal is combat-only here)
+            }
+        }
+
+        function endPlayerTurn() {
+            if (!currentEnemy || player.health <= 0) return;
+            updateUI(); 
+
+            if (player.activeBuffs) {
+                for (const buffName in player.activeBuffs) {
+                    player.activeBuffs[buffName].duration--;
+                    if (player.activeBuffs[buffName].duration <= 0) {
+                        if (buffName === 'battle_cry') {
+                            // player.attack -= player.activeBuffs.battle_cry.amount; // Attack is recalculated in calculatePlayerStats
+                            displayMessage(`Battle Cry effect ended.`, 'info');
+                        } else if (buffName === 'combat_stim') {
+                            // player.attack -= player.activeBuffs.combat_stim.amount; // Attack is recalculated
+                            displayMessage(`Combat Stim effect ended.`, 'info');
+                        }
+                        delete player.activeBuffs[buffName];
+                    }
+                }
+            }
+            setTimeout(enemyTurn, 500); 
+        }
+
+        function enemyTurn() {
+            if (!currentEnemy || player.health <= 0) return;
+
+            enemySprite.classList.add('attacking');
+            setTimeout(() => enemySprite.classList.remove('attacking'), 100);
+
+            let damage = Math.max(1, currentEnemy.attack - player.defense + Math.floor(Math.random() * 3));
+            
+            if (player.activeBuffs && (player.activeBuffs.mana_shield || player.activeBuffs.energy_shield)) {
+                const shieldBuff = player.activeBuffs.mana_shield || player.activeBuffs.energy_shield;
+                const reduction = shieldBuff.reduction;
+                damage = Math.round(damage * (1 - reduction));
+                displayMessage(`${gameMode === 'fantasy' ? 'Mana Shield' : 'Energy Shield'} absorbed some damage!`, 'info');
+                delete player.activeBuffs.mana_shield;
+                delete player.activeBuffs.energy_shield;
+            }
+
+            player.health -= damage;
+            displayMessage(`${currentEnemy.name} attacks you for ${damage} damage!`, 'combat');
+            
+            playerSprite.classList.add('taking-damage');
+            setTimeout(() => playerSprite.classList.remove('taking-damage'), 300);
+
+            // updateUI(); // Called by checkCombatEnd
+            checkCombatEnd();
+
+            if (currentEnemy && player.health > 0) {
+                player.actionPoints += BASE_ACTION_POINTS_PER_TURN;
+                player.mana = Math.min(player.maxMana, player.mana + 2); 
+                displayMessage(`Your turn! You have ${player.actionPoints} Action Points.`, 'info');
+                updateUI(); // Update UI after AP and mana regen
+            }
+        }
+
+        function renderSkillTree() {
+            skillsContainer.innerHTML = '';
+            const activeSkills = gameMode === 'fantasy' ? FANTASY_SKILLS : SCI_FI_SKILLS;
+            const classSkills = activeSkills[player.class];
+            player.skills = player.skills || {}; 
+
+            for (const skillId in classSkills) {
+                const skillData = classSkills[skillId];
+                const playerSkillState = player.skills[skillId] || { currentLevel: 0 };
+                player.skills[skillId] = playerSkillState; 
+
+                const currentLevel = playerSkillState.currentLevel;
+                const isMaxLevel = currentLevel >= skillData.maxLevel;
+                const cost = isMaxLevel ? 0 : skillData.levels[currentLevel].cost; // Cost for NEXT level
+                const canAfford = player.talentPoints >= cost;
+                const prerequisiteMet = !skillData.prerequisite || (player.skills[skillData.prerequisite] && player.skills[skillData.prerequisite].currentLevel > 0);
+
+                const skillCard = document.createElement('div');
+                skillCard.classList.add('skill-card');
+                skillCard.innerHTML = `
+                    <div class="skill-icon">${skillData.icon}</div>
+                    <h3>${skillData.name} (Lvl ${currentLevel}/${skillData.maxLevel})</h3>
+                    <p>${skillData.description}</p>
+                    <p>Cost: ${isMaxLevel ? 'N/A' : cost + ' Talent Points'}</p>
+                    <button data-skill-id="${skillId}" ${isMaxLevel || !canAfford || !prerequisiteMet ? 'disabled' : ''}>
+                        ${isMaxLevel ? 'Max Level' : 'Learn/Upgrade'}
+                    </button>
+                `;
+                skillsContainer.appendChild(skillCard);
+
+                const learnButton = skillCard.querySelector('button');
+                if (!isMaxLevel) {
+                    learnButton.addEventListener('click', () => learnSkill(skillId));
+                }
+            }
+            updateUI();
+        }
+
+        function learnSkill(skillId) {
+            const activeSkills = gameMode === 'fantasy' ? FANTASY_SKILLS : SCI_FI_SKILLS;
+            const skillData = activeSkills[player.class][skillId];
+            const playerSkillState = player.skills[skillId];
+            const currentLevel = playerSkillState.currentLevel;
+
+            if (currentLevel >= skillData.maxLevel) {
+                displayMessage(`${skillData.name} is already at max level!`, 'error');
+                return;
+            }
+
+            const nextLevelData = skillData.levels[currentLevel]; // Data for the level being learned
+            if (player.talentPoints < nextLevelData.cost) {
+                displayMessage(`Not enough talent points to learn ${skillData.name}!`, 'error');
+                return;
+            }
+
+            if (skillData.prerequisite && (!player.skills[skillData.prerequisite] || player.skills[skillData.prerequisite].currentLevel === 0)) {
+                displayMessage(`You need to learn ${activeSkills[player.class][skillData.prerequisite].name} first!`, 'error');
+                return;
+            }
+
+            player.talentPoints -= nextLevelData.cost;
+            playerSkillState.currentLevel++;
+            displayMessage(`Learned ${skillData.name} Level ${playerSkillState.currentLevel}!`, 'info');
+
+            if (skillId === 'iron_skin' || skillId === 'titan_plating') {
+                // player.baseDefense += nextLevelData.effect.defenseBoost; // Base stats are modified by calculatePlayerStats
+            }
+            if (skillId === 'mana_flow' || skillId === 'battery_optimization') {
+                player.maxMana += nextLevelData.effect.maxManaBoost;
+                player.mana = player.maxMana; 
+            }
+            calculatePlayerStats(); // Recalculate stats after learning a skill
+            renderSkillTree(); 
+            updateUI();
+        }
+
+        function useSpecialSkill(skillId) {
+            if (!currentEnemy) return; // Skills are used in combat
+            const activeSkills = gameMode === 'fantasy' ? FANTASY_SKILLS : SCI_FI_SKILLS;
+            const skillData = activeSkills[player.class][skillId];
+            const playerSkillState = player.skills[skillId];
+
+            if (!playerSkillState || playerSkillState.currentLevel === 0) {
+                displayMessage(`You haven't learned ${skillData.name} yet!`, 'error');
+                return;
+            }
+
+            const skillLevelData = skillData.levels[playerSkillState.currentLevel - 1];
+            if (player.actionPoints < skillLevelData.apCost) {
+                displayMessage(`Not enough Action Points for ${skillData.name}!`, 'error');
+                return;
+            }
+            if (skillLevelData.effect.manaCost && player.mana < skillLevelData.effect.manaCost) {
+                displayMessage(`Not enough ${gameMode === 'fantasy' ? 'Mana' : 'Battery'} for ${skillData.name}!`, 'error');
+                return;
+            }
+
+            player.actionPoints -= skillLevelData.apCost;
+            if (skillLevelData.effect.manaCost) {
+                player.mana -= skillLevelData.effect.manaCost;
+            }
+
+            displayMessage(`You use ${skillData.name}!`, 'combat');
+
+            if (skillId === 'heavy_strike' || skillId === 'cleave' || skillId === 'arcane_barrage' || skillId === 'blizzard' || skillId === 'volley' || skillId === 'piercing_shot' ||
+                skillId === 'power_strike' || skillId === 'plasma_cleave' || skillId === 'energy_barrage' || skillId === 'graviton_surge' || skillId === 'burst_fire' || skillId === 'armor_piercer') {
+                
+                let damage = 0;
+                let projectileEmoji; 
+
+                if (skillLevelData.effect.damageMultiplier) { 
+                    damage = Math.max(1, Math.round((player.attack * skillLevelData.effect.damageMultiplier)) - (currentEnemy.defense - (skillLevelData.effect.defenseBypass || 0)) + Math.floor(Math.random() * 5));
+                    if (player.class === 'archer') projectileEmoji = EMOJI_ICONS.arrow;
+                    else if (player.class === 'blaster_expert') projectileEmoji = EMOJI_ICONS.laser;
+                    else projectileEmoji = gameMode === 'fantasy' ? EMOJI_ICONS.slash : EMOJI_ICONS.energy_blast; 
+                } else if (skillLevelData.effect.magicDamageMultiplier) { 
+                    damage = Math.max(1, Math.round((player.magicPower * skillLevelData.effect.magicDamageMultiplier)) - (currentEnemy.defense - (skillLevelData.effect.defenseBypass || 0)) + Math.floor(Math.random() * 5));
+                    if (skillId === 'blizzard') projectileEmoji = EMOJI_ICONS.lightning;
+                    else if (skillId === 'graviton_surge') projectileEmoji = EMOJI_ICONS.energy_blast;
+                    else projectileEmoji = gameMode === 'fantasy' ? EMOJI_ICONS.magic_orb : EMOJI_ICONS.laser; 
+                }
+                
+                createProjectileAnimation(playerSprite, enemySprite, projectileEmoji, () => {
+                    currentEnemy.health -= damage;
+                    displayMessage(`${currentEnemy.name} takes ${damage} damage!`, 'combat');
+                    enemySprite.classList.add('taking-damage');
+                    setTimeout(() => enemySprite.classList.remove('taking-damage'), 300);
+                    // updateUI(); // Called by checkCombatEnd
+                    checkCombatEnd();
+                });
+            } else if (skillId === 'battle_cry' || skillId === 'combat_stim') {
+                const buffName = gameMode === 'fantasy' ? 'battle_cry' : 'combat_stim';
+                player.activeBuffs = player.activeBuffs || {};
+                player.activeBuffs[buffName] = { amount: skillLevelData.effect.attackBuff, duration: skillLevelData.effect.duration };
+                calculatePlayerStats(); // Recalculate stats to apply buff
+                displayMessage(`Your attack is boosted by ${skillLevelData.effect.attackBuff} for ${skillLevelData.effect.duration} ${gameMode === 'fantasy' ? 'turns' : 'cycles'}!`, 'info');
+                // updateUI(); // Called by checkCombatEnd
+                checkCombatEnd(); // Still call to update UI and potentially end turn if AP runs out
+            } else if (skillId === 'mana_shield' || skillId === 'energy_shield') {
+                const buffName = gameMode === 'fantasy' ? 'mana_shield' : 'energy_shield';
+                player.activeBuffs = player.activeBuffs || {};
+                player.activeBuffs[buffName] = { reduction: skillLevelData.effect.damageReduction };
+                displayMessage(`A ${gameMode === 'fantasy' ? 'Mana Shield' : 'Energy Shield'} protects you, reducing incoming damage!`, 'info');
+                // updateUI(); // Called by checkCombatEnd
+                checkCombatEnd(); // Still call to update UI
+            }
+        }
+
+        function renderSpecialSkillButtons() {
+            specialSkillsButtons.innerHTML = '';
+            if (!player.class || !currentEnemy) return; // Also check for currentEnemy
+
+            const activeSkills = gameMode === 'fantasy' ? FANTASY_SKILLS : SCI_FI_SKILLS;
+            const skillsForClass = activeSkills[player.class];
+            
+            for (const skillId in skillsForClass) {
+                const skillData = skillsForClass[skillId];
+                const playerSkillState = player.skills[skillId];
+
+                if (playerSkillState && playerSkillState.currentLevel > 0 && skillData.levels[playerSkillState.currentLevel - 1].apCost > 0) {
+                    const skillLevelData = skillData.levels[playerSkillState.currentLevel - 1];
+                    const skillButton = document.createElement('button');
+                    skillButton.textContent = `${skillData.name} (Lvl ${playerSkillState.currentLevel}) (${skillLevelData.apCost} AP)`;
+                    skillButton.classList.add('special-skill-button');
+                    skillButton.dataset.skillId = skillId;
+                    skillButton.disabled = player.actionPoints < skillLevelData.apCost || (skillLevelData.effect.manaCost && player.mana < skillLevelData.effect.manaCost);
+                    
+                    skillButton.addEventListener('click', () => useSpecialSkill(skillId));
+                    specialSkillsButtons.appendChild(skillButton);
+                }
+            }
+        }
+
+        function renderBlacksmithItems() {
+            blacksmithItemsContainer.innerHTML = '';
+            const activeWeapons = gameMode === 'fantasy' ? FANTASY_WEAPONS : SCI_FI_WEAPONS;
+            const activeArmors = gameMode === 'fantasy' ? FANTASY_ARMORS : SCI_FI_ARMORS;
+            const activeOffhands = gameMode === 'fantasy' ? FANTASY_OFFHANDS : SCI_FI_OFFHANDS;
+
+            const allItems = [...activeWeapons, ...activeArmors, ...activeOffhands];
+
+            allItems.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.classList.add('item-card');
+
+                let statsText = '';
+                if (item.attack) statsText += `Attack: +${item.attack}<br>`;
+                if (item.defense) statsText += `Defense: +${item.defense}<br>`;
+                if (item.magicPower) statsText += `${gameMode === 'fantasy' ? 'Magic' : 'Tech'}: +${item.magicPower}<br>`;
+
+                itemCard.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <h3>${item.name}</h3>
+                    <p>${statsText}</p>
+                    <p>Cost: ${item.cost} ${gameMode === 'fantasy' ? 'Gold' : 'Credits'}</p>
+                    <button class="buy-equip-button" data-item-id="${item.id}">Buy & Equip</button>
+                `;
+
+                const buyButton = itemCard.querySelector('.buy-equip-button');
+                buyButton.addEventListener('click', () => buyAndEquipItem(item));
+                
+                let isEquipped = false;
+                if (item.type === 'weapon' && player.equippedWeapon && player.equippedWeapon.id === item.id) {
+                    isEquipped = true;
+                } else if (item.type === 'armor' && player.equippedArmor && player.equippedArmor.id === item.id) {
+                    isEquipped = true;
+                } else if (item.type === 'offhand' && player.equippedOffhand && player.equippedOffhand.id === item.id) {
+                    isEquipped = true;
+                }
+
+                if (isEquipped) {
+                    buyButton.textContent = 'Equipped';
+                    buyButton.disabled = true;
+                    buyButton.classList.add('equipped');
+                } else {
+                    buyButton.disabled = player.gold < item.cost;
+                }
+                blacksmithItemsContainer.appendChild(itemCard);
+            });
+            updateUI();
+        }
+
+        function buyAndEquipItem(item) {
+            if (player.gold >= item.cost) {
+                player.gold -= item.cost;
+                
+                if (item.type === 'weapon') {
+                    player.equippedWeapon = item;
+                } else if (item.type === 'armor') {
+                    player.equippedArmor = item;
+                } else if (item.type === 'offhand') {
+                    player.equippedOffhand = item;
+                }
+                displayMessage(`You bought and equipped ${item.name}!`, 'info');
+                calculatePlayerStats(); // Recalculate stats after equipping
+                renderBlacksmithItems(); // Re-render to update buttons
+                // updateUI(); // Called by renderBlacksmithItems indirectly
+            } else {
+                displayMessage(`Not enough ${gameMode === 'fantasy' ? 'gold' : 'credits'} to buy ${item.name}!`, 'error');
+            }
+        }
+
+        function initializeMap() {
+            gameMap = [];
+            totalEnemyTiles = 0;
+            clearedEnemyTiles = 0;
+
+            for (let y = 0; y < MAP_SIZE; y++) {
+                gameMap[y] = [];
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    if (x === 0 && y === 0) {
+                        gameMap[y][x] = { type: 'start', visited: true, content: EMOJI_ICONS.home };
+                    } else if (x === MAP_SIZE - 1 && y === MAP_SIZE - 1) {
+                        gameMap[y][x] = { type: 'shop', visited: false, content: '?' }; 
+                    }
+                    else if (x === 2 && y === 0) { 
+                        gameMap[y][x] = { type: 'story_event', visited: false, content: '?' };
+                    }
+                    else if (x === 4 && y === 2) { 
+                        gameMap[y][x] = { type: 'story_event', visited: false, content: '?' };
+                    }
+                    else if (x === 0 && y === 4) { 
+                        gameMap[y][x] = { type: 'treasure', visited: false, content: '?' };
+                    }
+                    else if (x === 2 && y === 4) { 
+                        gameMap[y][x] = { type: 'boss', visited: false, content: '?' };
+                        totalEnemyTiles++; 
+                    }
+                    else {
+                        const rand = Math.random();
+                        if (rand < 0.75) { 
+                            gameMap[y][x] = { type: 'enemy', visited: false, content: '?' };
+                            totalEnemyTiles++;
+                        } else if (rand < 0.9) { 
+                            gameMap[y][x] = { type: 'treasure', visited: false, content: '?' };
+                        }
+                        else { 
+                            gameMap[y][x] = { type: 'safe', visited: false, content: '?' };
+                        }
+                    }
+                }
+            }
+            player.mapX = 0;
+            player.mapY = 0;
+            renderMap();
+        }
+
+        function renderMap() {
+            gameMapDiv.innerHTML = '';
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const tile = document.createElement('div');
+                    tile.classList.add('map-tile');
+                    tile.dataset.x = x;
+                    tile.dataset.y = y;
+
+                    const mapTileData = gameMap[y][x];
+                    let isAdjacentAndVisited = false;
+
+                    if (mapTileData.visited) {
+                        tile.classList.add('visited');
+                        if (mapTileData.type === 'cleared') {
+                            tile.classList.add('cleared-enemy');
+                            tile.textContent = EMOJI_ICONS.cleared_map;
+                        } else if (mapTileData.type === 'enemy') {
+                            tile.classList.add('enemy-tile');
+                            tile.textContent = gameMode === 'fantasy' ? EMOJI_ICONS.enemy_map : EMOJI_ICONS.alien_map;
+                        } else if (mapTileData.type === 'safe') {
+                            tile.classList.add('safe-zone');
+                            tile.textContent = EMOJI_ICONS.safe_map;
+                        } else if (mapTileData.type === 'shop') { 
+                            tile.classList.add('blacksmith-tile'); 
+                            tile.textContent = gameMode === 'fantasy' ? EMOJI_ICONS.blacksmith_map : EMOJI_ICONS.tech_shop_map;
+                        } else if (mapTileData.type === 'treasure') {
+                            tile.classList.add('treasure-tile');
+                            tile.textContent = gameMode === 'fantasy' ? EMOJI_ICONS.treasure_map : EMOJI_ICONS.data_cache_map;
+                        } else if (mapTileData.type === 'story_event') {
+                            tile.classList.add('story-event-tile');
+                            tile.textContent = gameMode === 'fantasy' ? EMOJI_ICONS.story_event_map : EMOJI_ICONS.anomaly_map;
+                        } else if (mapTileData.type === 'boss') {
+                            tile.classList.add('enemy-tile'); 
+                            tile.textContent = gameMode === 'fantasy' ? EMOJI_ICONS.boss_map : EMOJI_ICONS.ai_core_map;
+                        } else if (mapTileData.type === 'start') {
+                            tile.textContent = EMOJI_ICONS.home;
+                        }
+                        // Check if this visited tile is adjacent to the player for clickability
+                        const dx = Math.abs(x - player.mapX);
+                        const dy = Math.abs(y - player.mapY);
+                        if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+                           isAdjacentAndVisited = true;
+                           tile.classList.add('clickable'); // Add a class for styling clickable tiles
+                        }
+
+                    } else {
+                        tile.textContent = '?';
+                    }
+
+                    if (x === player.mapX && y === player.mapY) {
+                        tile.classList.add('player-position');
+                        const playerClassEmojiKey = player.class ? player.class.replace('-', '_') : 'player_map'; 
+                        tile.textContent = EMOJI_ICONS[playerClassEmojiKey] || EMOJI_ICONS.player_map;
+                    }
+                    
+                    // Add click listener for map movement
+                    tile.addEventListener('click', () => {
+                        if (currentView === VIEWS.MAP && player.health > 0) {
+                            const targetX = parseInt(tile.dataset.x);
+                            const targetY = parseInt(tile.dataset.y);
+                            const mapTile = gameMap[targetY][targetX];
+
+                            // Allow moving to adjacent visited tiles
+                            const dxAbs = Math.abs(targetX - player.mapX);
+                            const dyAbs = Math.abs(targetY - player.mapY);
+
+                            if (mapTile.visited && ((dxAbs === 1 && dyAbs === 0) || (dxAbs === 0 && dyAbs === 1))) {
+                                movePlayer(targetX - player.mapX, targetY - player.mapY);
+                            } else if (!mapTile.visited) {
+                                displayMessage("You cannot move to an unexplored tile by clicking. Use arrow buttons or keys.", "error");
+                            } else {
+                                displayMessage("You can only click to move to adjacent revealed tiles.", "error");
+                            }
+                        }
+                    });
+
+                    gameMapDiv.appendChild(tile);
+                }
+            }
+        }
+
+        function triggerStoryEvent() {
+            if (gameMode === 'fantasy') {
+                switch (storyProgress) {
+                    case 1: 
+                        displayMessage("You find an ancient scroll detailing the Sunstone's power. It warns of a powerful Necromancer Lord who guards it!", 'info');
+                        storyProgress++;
+                        break;
+                    case 2: 
+                        displayMessage("A spectral voice echoes: 'The Blight grows stronger! The Sunstone is near, but so is its guardian!'", 'info');
+                        storyProgress++;
+                        break;
+                    default:
+                        displayMessage("You find nothing new here.", 'info');
+                        break;
+                }
+            } else { 
+                switch (storyProgress) {
+                    case 1: 
+                        displayMessage("You intercept a distress signal from a lost colony. Xylos's forces are closing in!", 'info');
+                        storyProgress++;
+                        break;
+                    case 2: 
+                        displayMessage("A corrupted data log flickers to life: 'The AI Core... it's adapting... too fast!'", 'info');
+                        storyProgress++;
+                        break;
+                    default:
+                        displayMessage("You find nothing new here.", 'info');
+                        break;
+                }
+            }
+        }
+
+        function movePlayer(dx, dy) {
+            if (currentView !== VIEWS.MAP || player.health <= 0) {
+                return;
+            }
+
+            const newX = player.mapX + dx;
+            const newY = player.mapY + dy;
+
+            if (newX >= 0 && newX < MAP_SIZE && newY >= 0 && newY < MAP_SIZE) {
+                player.mapX = newX;
+                player.mapY = newY;
+                
+                const currentTile = gameMap[player.mapY][player.mapX];
+                currentTile.visited = true;
+
+                renderMap();
+
+                if (currentTile.type === 'enemy') {
+                    displayMessage(`You encountered a foe at (${player.mapX}, ${player.mapY})!`, 'info');
+                    startCombat();
+                } else if (currentTile.type === 'safe') {
+                    displayMessage(`You found a safe spot at (${player.mapX}, ${player.mapY}).`, 'info');
+                } else if (currentTile.type === 'start') {
+                    displayMessage(`You are back at the starting point. Health and ${gameMode === 'fantasy' ? 'Mana' : 'Battery'} restored!`, 'info');
+                    player.health = player.maxHealth;
+                    player.mana = player.maxMana;
+                } else if (currentTile.type === 'shop') {
+                    displayMessage(`You arrived at the ${gameMode === 'fantasy' ? 'Blacksmith' : 'Tech Shop'}!`, 'info');
+                    switchView(VIEWS.BLACKSMITH);
+                } else if (currentTile.type === 'cleared') {
+                    displayMessage(`You are on a cleared path.`, 'info');
+                } else if (currentTile.type === 'treasure') {
+                    const goldFound = Math.floor(Math.random() * 20) + 10; 
+                    player.gold += goldFound;
+                    displayMessage(`You found a treasure chest with ${goldFound} ${gameMode === 'fantasy' ? 'gold' : 'credits'}!`, 'info');
+                    currentTile.type = 'safe'; 
+                    currentTile.content = EMOJI_ICONS.safe_map;
+                    renderMap();
+                } else if (currentTile.type === 'story_event') {
+                    triggerStoryEvent();
+                    currentTile.type = 'safe'; 
+                    currentTile.content = EMOJI_ICONS.safe_map;
+                    renderMap();
+                } else if (currentTile.type === 'boss') {
+                    const bossName = gameMode === 'fantasy' ? 'Necromancer Lord' : 'AI Overlord';
+                    displayMessage(`You stand before the lair of the ${bossName}! Prepare for the final battle!`, 'combat');
+                    startCombat(true); 
+                }
+
+            } else {
+                // displayMessage("You can't move that way, brave hero!", 'error'); // Message handled by button disabled state or click logic
+            }
+            updateUI();
+        }
+
+        function selectClass(classKey) {
+            try {
+                const activeClassDefs = CLASS_DEFINITIONS[gameMode];
+                const classDef = activeClassDefs[classKey];
+
+                player.name = classDef.name;
+                player.class = classKey; 
+                player.baseAttack = classDef.baseAttack;
+                player.baseDefense = classDef.baseDefense;
+                player.baseMagicPower = classDef.baseMagicPower;
+                player.maxHealth = classDef.maxHealth || 100; 
+                player.health = player.maxHealth;
+                player.maxMana = classDef.maxMana || 50; 
+                player.mana = player.maxMana;
+
+                const activeWeapons = gameMode === 'fantasy' ? FANTASY_WEAPONS : SCI_FI_WEAPONS;
+                const activeArmors = gameMode === 'fantasy' ? FANTASY_ARMORS : SCI_FI_ARMORS;
+                const activeOffhands = gameMode === 'fantasy' ? FANTASY_OFFHANDS : SCI_FI_OFFHANDS;
+
+                if (classDef.initialWeapon) {
+                    player.equippedWeapon = activeWeapons.find(w => w.id === classDef.initialWeapon);
+                } else {
+                    player.equippedWeapon = null;
+                }
+                if (classDef.initialArmor) {
+                    player.equippedArmor = activeArmors.find(a => a.id === classDef.initialArmor);
+                } else {
+                    player.equippedArmor = null;
+                }
+                if (classDef.initialOffhand) {
+                    player.equippedOffhand = activeOffhands.find(o => o.id === classDef.initialOffhand);
+                } else {
+                    player.equippedOffhand = null;
+                }
+
+                player.skills = {}; 
+                player.activeBuffs = {}; 
+
+                if (playerSprite) {
+                    const playerEmojiKey = classKey.replace('-', '_'); 
+                    playerSprite.textContent = EMOJI_ICONS[playerEmojiKey];
+                }
+
+                calculatePlayerStats();
+                initializeMap();
+                switchView(VIEWS.MAP);
+                displayMessage(`You have chosen the path of a ${classDef.name}! Good luck, ${player.name}!`, 'info');
+            } catch (error) {
+                console.error('Error in selectClass:', error);
+                displayMessage(`An error occurred during class selection: ${error.message}`, 'error');
+            }
+        }
+
+        function startCombat(isBoss = false) {
+            const modifiers = DIFFICULTY_MODIFIERS[gameDifficulty];
+            if (isBoss) {
+                const bossName = gameMode === 'fantasy' ? "Necromancer Lord" : "AI Overlord";
+                const bossEmoji = gameMode === 'fantasy' ? EMOJI_ICONS.necromancer_lord : EMOJI_ICONS.ai_overlord;
+                currentEnemy = {
+                    name: bossName,
+                    health: Math.round((150 + (enemyLevel * 15)) * modifiers.enemyHealth), 
+                    maxHealth: Math.round((150 + (enemyLevel * 15)) * modifiers.enemyHealth),
+                    attack: Math.round((20 + (enemyLevel * 3)) * modifiers.enemyAttack),
+                    defense: Math.round((10 + (enemyLevel * 2)) * modifiers.enemyAttack),
+                    goldDrop: Math.round((200 + (enemyLevel * 50)) * modifiers.playerGoldBonus)
+                };
+                enemySprite.textContent = bossEmoji;
+            } else {
+                currentEnemy = generateEnemy();
+            }
+            player.actionPoints = BASE_ACTION_POINTS_PER_TURN; 
+            displayMessage(`A wild ${currentEnemy.name} appears! Prepare for battle! You have ${player.actionPoints} Action Points.`, 'combat');
+            switchView(VIEWS.COMBAT);
+            // updateUI(); // Called by switchView
+        }
+
+        function returnToMap() {
+            // currentEnemy = null; // This should already be null if combat ended properly
+            switchView(VIEWS.MAP);
+            // updateUI(); // Called by switchView
+        }
+
+        function initializeGame() {
+            warriorClassIcon = document.querySelector('.class-selection-card[data-class="warrior"] .class-icon');
+            mageClassIcon = document.querySelector('.class-selection-card[data-class="mage"] .class-icon'); 
+            archerClassIcon = document.querySelector('.class-selection-card[data-class="archer"] .class-icon');
+
+            playerSprite = document.getElementById('playerSprite');
+            enemySprite = document.getElementById('enemySprite');
+            
+            if (warriorClassIcon) warriorClassIcon.textContent = EMOJI_ICONS.warrior;
+            if (mageClassIcon) mageClassIcon.textContent = EMOJI_ICONS.mage;
+            if (archerClassIcon) archerClassIcon.textContent = EMOJI_ICONS.archer;
+
+            classSelectionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const selectedClass = card.dataset.class;
+                    selectClass(selectedClass);
+                });
+            });
+            
+            // Add keyboard listener for map movement
+            document.addEventListener('keydown', (event) => {
+                if (currentView === VIEWS.MAP && player.health > 0) {
+                    switch (event.key) {
+                        case "ArrowUp":
+                            if (!moveUpButton.disabled) movePlayer(0, -1);
+                            break;
+                        case "ArrowDown":
+                            if (!moveDownButton.disabled) movePlayer(0, 1);
+                            break;
+                        case "ArrowLeft":
+                            if (!moveLeftButton.disabled) movePlayer(-1, 0);
+                            break;
+                        case "ArrowRight":
+                            if (!moveRightButton.disabled) movePlayer(1, 0);
+                            break;
+                    }
+                }
+            });
+
+            switchView(VIEWS.SETTINGS);
+            // updateUI(); // Called by switchView
+        }
+
+        // --- Event Listeners ---
+        startGameButton.addEventListener('click', () => {
+            gameDifficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+            showStory = storyToggleCheckbox.checked;
+
+            const classDefs = CLASS_DEFINITIONS[gameMode];
+            document.querySelector('.class-selection-card[data-class="warrior"] h3').textContent = classDefs.warrior.name;
+            document.querySelector('.class-selection-card[data-class="warrior"] .class-icon').textContent = classDefs.warrior.emoji;
+            document.querySelector('.class-selection-card[data-class="warrior"] p').textContent = classDefs.warrior.description;
+
+            document.querySelector('.class-selection-card[data-class="mage"] h3').textContent = classDefs.mage.name;
+            document.querySelector('.class-selection-card[data-class="mage"] .class-icon').textContent = classDefs.mage.emoji;
+            document.querySelector('.class-selection-card[data-class="mage"] p').textContent = classDefs.mage.description;
+
+            document.querySelector('.class-selection-card[data-class="archer"] h3').textContent = classDefs.archer.name;
+            document.querySelector('.class-selection-card[data-class="archer"] .class-icon').textContent = classDefs.archer.emoji;
+            document.querySelector('.class-selection-card[data-class="archer"] p').textContent = classDefs.archer.description;
+
+            storyText.innerHTML = gameMode === 'fantasy' ? FANTASY_STORY_TEXT : SCI_FI_STORY_TEXT;
+            // FIX #1: Update story intro title and button text for Sci-Fi mode
+            if (gameMode === 'sci-fi') {
+                storyIntroTitle.textContent = "The Xylos Threat";
+                continueStoryButton.textContent = "Engage Protocol";
+                document.querySelector('h1').textContent = "Galaxy at War!"; // Optional: Change main game title too
+            } else {
+                storyIntroTitle.textContent = "The Shadow Blight";
+                continueStoryButton.textContent = "Begin Your Quest";
+                document.querySelector('h1').textContent = "The Quest for Glory!";
+            }
+
+
+            if (showStory) {
+                switchView(VIEWS.STORY_INTRO);
+            } else {
+                switchView(VIEWS.START);
+            }
+            displayMessage(`Game mode set to ${gameMode.toUpperCase()}, Difficulty: ${gameDifficulty.toUpperCase()}${showStory ? '' : ' (Story Skipped)'}.`, 'info');
+        });
+
+        attackButton.addEventListener('click', playerAttack);
+        magicButton.addEventListener('click', toggleMagicSpellOptions);
+        
+        magicSpellOptions.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const spellType = e.target.dataset.spellType; 
+                playerMagic(spellType); 
+            }
+        });
+
+        healButton.addEventListener('click', playerHeal);
+        endTurnButton.addEventListener('click', endPlayerTurn);
+        returnToMapButton.addEventListener('click', returnToMap);
+        returnFromSkillsButton.addEventListener('click', returnToMap);
+        returnFromBlacksmithButton.addEventListener('click', returnToMap);
+
+        moveUpButton.addEventListener('click', () => movePlayer(0, -1));
+        moveDownButton.addEventListener('click', () => movePlayer(0, 1));
+        moveLeftButton.addEventListener('click', () => movePlayer(-1, 0));
+        moveRightButton.addEventListener('click', () => movePlayer(1, 0));
+
+        viewSkillsButton.addEventListener('click', () => switchView(VIEWS.SKILLS));
+        viewBlacksmithButton.addEventListener('click', () => switchView(VIEWS.BLACKSMITH));
+
+        continueStoryButton.addEventListener('click', () => switchView(VIEWS.START));
+
+        document.addEventListener('DOMContentLoaded', initializeGame);
+
+    </script>
+</body>
+</html>
